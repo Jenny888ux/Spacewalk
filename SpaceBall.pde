@@ -1,13 +1,7 @@
-boolean NEW_GRAPH = true;
-boolean SEND_PANEL = false;
-boolean FFT_ON = false;
+
 boolean KINECT_ON = false;
-//////////////////////////////////////////////////////////
-import java.nio.ByteBuffer;
-import processing.net.*;
-Server myServer;
+
 import java.util.ArrayList;
-//GraphList graphL;
 
 ///////////////////////////////////////
 // MODES
@@ -37,7 +31,6 @@ float sc = 1.0;
 int lineIndex = 0;
 int triggered = -1;
 int triggeredTime = 0;
-PImage whale, hand, orchid, moth, owl;
 int currentString;
 
 // grid and balls
@@ -57,13 +50,13 @@ color c1, c2;
 
 void setup() {
   //fullScreen(P3D);
-
   size(800, 600, P3D);
+  
   lines = new ArrayList<Line>();
   shapes = new ArrayList<Shape>();
   nodes = new ArrayList<Node>();
-  //graphL = new GraphList(100);
-  //if (!NEW_GRAPH) graphL.loadGraph();
+  
+  initScreens();
   initModes();
   initGrid();
   setRects();
@@ -77,31 +70,41 @@ void setup() {
 //--------------------------------------------------------------
 void draw() {
   background(0);
-  pointLight(205, 205, 205, mouseX, mouseY, -100);
-  if (mode == VISUALIZE) {
-    noCursor();
-    pushMatrix();
-    translate(width/2, height/2, 0);
-    //setRainbowPulse(20);
-    setGradientZs();
-    displayShapes();
-
-    popMatrix();
-
-    stroke(255);
-    fill(255);
-    strokeWeight(3);
-    changeMode();
-    playMode();
-    //for (Line l : lines) {
-    //  l.display(255);
-    //}
-  } else {
+  
+  
+  if (mode == VISUALIZE) 
+    visualize();
+  else {
+    screen.beginDraw();
+    screen.background(0);
     settingFunctions();
-    ellipse(width/2, height/2, 50, 50);
+    renderScreens();
+    screen.endDraw();
   }
 }
 
+void visualize() {
+  
+  noCursor();
+  screen.beginDraw();
+  screen.background(0);
+  screen.pointLight(205, 205, 205, mouseX, mouseY, -100);
+  screen.pushMatrix();
+  screen.translate(width/2, height/2, 0);
+  //setRainbowPulse(20);
+  setGradientZs();
+  displayShapes(screen);
+  screen.popMatrix();
+
+  screen.stroke(255);
+  screen.fill(255);
+  screen.strokeWeight(3);
+  changeMode();
+  playMode();
+  screen.endDraw();
+  
+  renderScreens();
+}
 void changeMode() {
   if (millis() - lastCheckedMode > 8000) {
     if (int(random(2)) == 0) visualMode = V_DISPLAY;
@@ -113,8 +116,9 @@ void changeMode() {
 //--------------------------------------------------------------
 void keyPressed() {
   if (key == 's') {
-    //graphL.saveGraph();
-    //graphL.printGraph();
+    saveShapes();
+    saveLines();
+    saveKeystone();
   } else if (key == 'r') loadLines();
   else if (key == 'a') mode = ADD_NODES;
   else if (key == 'e') mode = ADD_EDGES;
@@ -123,11 +127,9 @@ void keyPressed() {
   else if (key == 'n') mode = MOVE_NODES;
   else if (key == 'd') mode = DELETE_NODES;
   else if (key == 'z') mode = SET_LINEZ;
-  else if (key == 'c') {
-    mode = SET_CONST;
-  } else if (key == 'v') {
-    mode = VISUALIZE;
-  } 
+  else if (key == 'c') toggleCalibration();
+  else if (key == 'g') mode = SET_CONST;
+  else if (key == 'v') mode = VISUALIZE;
   else if (mode == MOVE_LINES) {
     if (lineIndex >= 0) {
       Line l = lines.get(lineIndex);
@@ -359,9 +361,9 @@ void loadShapes() {
   }
 }
 
-void displayShapes() {
+void displayShapes(PGraphics g) {
   for (Shape s : shapes) {
-    s.display();
+    s.display(g);
   }
 }
 

@@ -110,7 +110,7 @@ void saveLines() {
   processing.data.JSONObject json;
   json = new processing.data.JSONObject();
   json.setInt("linesNum", lines.size());
-  saveJSONObject(json, "data/graph/lines.json");
+  saveJSONObject(json, "data/lines/lines.json");
 
   for (int i = 0; i < lines.size(); i++) {
     processing.data.JSONObject json2;
@@ -122,20 +122,21 @@ void saveLines() {
     json2.setInt("y1", l.getY1());
     json2.setInt("x2", l.getX2());
     json2.setInt("y2", l.getY2());
-    json2.setInt("z1", l.zIndex);
+    json2.setInt("z1", l.z1);
+    json2.setInt("z2", l.z2);
     json2.setInt("cg", l.constellationG);
 
-    saveJSONObject(json2, "data/graph/line" + i + ".json");
+    saveJSONObject(json2, "data/lines/line" + i + ".json");
   }
 }
 
 void loadLines() {
   processing.data.JSONObject json;
-  json = loadJSONObject("data/graph/lines.json");
+  json = loadJSONObject("data/lines/lines.json");
   int linesNum = json.getInt("linesNum");
 
   for (int i = 0; i < linesNum; i++) {
-    processing.data.JSONObject lineJson = loadJSONObject("data/graph/line" + i + ".json");
+    processing.data.JSONObject lineJson = loadJSONObject("data/lines/line" + i + ".json");
     int id1 = lineJson.getInt("id1");
     int id2 = lineJson.getInt("id2");
     int x1 = lineJson.getInt("x1");

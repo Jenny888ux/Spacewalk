@@ -10,58 +10,58 @@ class Shape {
     this.num = num;
   }
 
-  void display() {
-    beginShape();
+  void display(PGraphics s) {
+    s.beginShape();
     for (int i = 0; i < pts.size(); i++) {
-      vertex(pts.get(i).x, pts.get(i).y);
+      s.vertex(pts.get(i).x, pts.get(i).y);
     }
-    endShape(CLOSE);
+    s.endShape(CLOSE);
     
-    fill(255);
+    s.fill(255);
     
   }
   
-  void drawMoveable() {
+  void drawMoveable(PGraphics s) {
     for(PVector pt : pts) {
-      pushMatrix();
-      translate(pt.x, pt.y, pt.z);
-      sphere(5);
-      popMatrix();
+      s.pushMatrix();
+      s.translate(pt.x, pt.y, pt.z);
+      s.sphere(5);
+      s.popMatrix();
     }
   }
 
-  void sidesToRects(int s) {
+  void sidesToRects(int s, PGraphics g) {
     // top
-    beginShape();
-    vertex(pts.get(0).x-s/2, pts.get(0).y-s/2);
-    vertex(pts.get(1).x+s/2, pts.get(1).y-s/2);
-    vertex(pts.get(1).x+s/2, pts.get(1).y+s/2);
-    vertex(pts.get(0).x-s/2, pts.get(0).y+s/2);
-    endShape(CLOSE);
+    g.beginShape();
+    g.vertex(pts.get(0).x-s/2, pts.get(0).y-s/2);
+    g.vertex(pts.get(1).x+s/2, pts.get(1).y-s/2);
+    g.vertex(pts.get(1).x+s/2, pts.get(1).y+s/2);
+    g.vertex(pts.get(0).x-s/2, pts.get(0).y+s/2);
+    g.endShape(CLOSE);
     
     // right
-    beginShape();
-    vertex(pts.get(1).x-s/2, pts.get(1).y-s/2);
-    vertex(pts.get(1).x+s/2, pts.get(1).y-s/2);
-    vertex(pts.get(2).x+s/2, pts.get(2).y+s/2);
-    vertex(pts.get(2).x-s/2, pts.get(2).y+s/2);
-    endShape(CLOSE);
+    g.beginShape();
+    g.vertex(pts.get(1).x-s/2, pts.get(1).y-s/2);
+    g.vertex(pts.get(1).x+s/2, pts.get(1).y-s/2);
+    g.vertex(pts.get(2).x+s/2, pts.get(2).y+s/2);
+    g.vertex(pts.get(2).x-s/2, pts.get(2).y+s/2);
+    g.endShape(CLOSE);
     
     // left
-    beginShape();
-    vertex(pts.get(0).x-s/2, pts.get(0).y-s/2);
-    vertex(pts.get(0).x+s/2, pts.get(0).y-s/2);
-    vertex(pts.get(3).x+s/2, pts.get(3).y+s/2);
-    vertex(pts.get(3).x-s/2, pts.get(3).y+s/2);
-    endShape(CLOSE);
+    g.beginShape();
+    g.vertex(pts.get(0).x-s/2, pts.get(0).y-s/2);
+    g.vertex(pts.get(0).x+s/2, pts.get(0).y-s/2);
+    g.vertex(pts.get(3).x+s/2, pts.get(3).y+s/2);
+    g.vertex(pts.get(3).x-s/2, pts.get(3).y+s/2);
+    g.endShape(CLOSE);
     
     // bottom
-    beginShape();
-    vertex(pts.get(3).x-s/2, pts.get(3).y-s/2);
-    vertex(pts.get(2).x+s/2, pts.get(2).y-s/2);
-    vertex(pts.get(2).x+s/2, pts.get(2).y+s/2);
-    vertex(pts.get(3).x-s/2, pts.get(3).y+s/2);
-    endShape(CLOSE);
+    g.beginShape();
+    g.vertex(pts.get(3).x-s/2, pts.get(3).y-s/2);
+    g.vertex(pts.get(2).x+s/2, pts.get(2).y-s/2);
+    g.vertex(pts.get(2).x+s/2, pts.get(2).y+s/2);
+    g.vertex(pts.get(3).x-s/2, pts.get(3).y+s/2);
+    g.endShape(CLOSE);
   }
 
   void saveShape() {

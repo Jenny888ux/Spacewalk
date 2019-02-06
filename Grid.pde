@@ -20,46 +20,46 @@ void initGrid() {
   //balls.add(new Ball(200, 300, -500));
 }
 
-void drawGrid() {
+void drawGrid(PGraphics g) {
   
 
 
   for (int z = 0; z < numRectZ; z++) {
-    noFill();
-    stroke(255);
-    strokeWeight(6);
-    pushMatrix();
-    translate(0, 0, z * -zSpacing);
-    rect(0, 0, rectW, rectH);
-    popMatrix();
+    g.noFill();
+    g.stroke(255);
+    g.strokeWeight(6);
+    g.pushMatrix();
+    g.translate(0, 0, z * -zSpacing);
+    g.rect(0, 0, rectW, rectH);
+    g.popMatrix();
   }
 
   // lines
   for (int y = 0; y < numLinesY; y++) {
     float ysp = rectH * 1.0/(numLinesY -1);
     // left
-    line(-rectW/2, -rectH/2 + ysp*y, 0, -rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+    g.line(-rectW/2, -rectH/2 + ysp*y, 0, -rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
     // right
-    line(rectW/2, -rectH/2 + ysp*y, 0, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+    g.line(rectW/2, -rectH/2 + ysp*y, 0, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
   }
   for (int x = 0; x < numLinesX; x++) {
     float xsp = rectW * 1.0/(numLinesX -1);
     // top
-    line(-rectW/2+xsp*x, -rectH/2, 0, -rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing);
+    g.line(-rectW/2+xsp*x, -rectH/2, 0, -rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing);
     // bottom
-    line(-rectW/2+xsp*x, rectH/2, 0, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
+    g.line(-rectW/2+xsp*x, rectH/2, 0, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
   }
 
   // back wall lines
   for (int x = 0; x < numLinesX; x++) {
     float xsp = rectW * 1.0/(numLinesX -1);
     // up down
-    line(-rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
+    g.line(-rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
   }
   for (int y = 0; y < numLinesY; y++) {
     float ysp = rectH * 1.0/(numLinesY -1);
     // left right
-    line(-rectW/2, -rectH/2 + ysp*y, (numRectZ-1)*-zSpacing, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+    g.line(-rectW/2, -rectH/2 + ysp*y, (numRectZ-1)*-zSpacing, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
   }
   for (Ball ball : balls) {
     ball.run();
@@ -70,25 +70,25 @@ void drawGrid() {
 
 }
 
-void drawTopRects() {
+void drawTopRects(PGraphics g) {
   for (int x = 0; x < numLinesX-1; x++) {
     for (int z = 0; z < numRectZ-1; z++) {
       float xsp = rectW * 1.0/(numLinesX -1);
-      fill(10, 255, 255);
+      g.fill(10, 255, 255);
 
       // top
-      pushMatrix();
-      rotateX(radians(90));
-      translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, rectH/2);
-      rect(0, 0, xsp, zSpacing); 
-      popMatrix();
+      g.pushMatrix();
+      g.rotateX(radians(90));
+      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, rectH/2);
+      g.rect(0, 0, xsp, zSpacing); 
+      g.popMatrix();
 
       // bottom
-      pushMatrix();
-      rotateX(radians(90));
-      translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, -rectH/2);
-      rect(0, 0, xsp, zSpacing); 
-      popMatrix();
+      g.pushMatrix();
+      g.rotateX(radians(90));
+      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, -rectH/2);
+      g.rect(0, 0, xsp, zSpacing); 
+      g.popMatrix();
     }
   }
 }
@@ -122,28 +122,25 @@ void setRects() {
   }
 }
 
-void drawSideRects() {
+void drawSideRects(PGraphics g) {
   for (int z = 0; z < numRectZ-1; z++) {
     for (int y = 0; y < numLinesY-1; y++) {
       float ysp = rectH * 1.0/(numLinesY -1);
-      fill(10, 255, 255);
+      g.fill(10, 255, 255);
 
       // left
-      pushMatrix();
-      rotateY(radians(90));
-      translate(zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, -rectW/2);
-      rect(0, 0, zSpacing, ysp); 
-      popMatrix();
+      g.pushMatrix();
+      g.rotateY(radians(90));
+      g.translate(zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, -rectW/2);
+      g.rect(0, 0, zSpacing, ysp); 
+      g.popMatrix();
 
       // right
-      pushMatrix();
-      rotateY(radians(90));
-      translate(zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, rectW/2);
-      rect(0, 0, zSpacing, ysp); 
-      popMatrix();
+      g.pushMatrix();
+      g.rotateY(radians(90));
+      g.translate(zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, rectW/2);
+      g.rect(0, 0, zSpacing, ysp); 
+      g.popMatrix();
     }
   }
-}
-
-void wallHit(PVector p) {
 }

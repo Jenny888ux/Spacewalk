@@ -24,29 +24,29 @@ class MoveableShape extends Shape {
     addPoint(new PVector(-w/2, h/2, 0));
   }
 
-  void display() {
+  void display(PGraphics g) {
     //fill(c);
     //noFill();
-    noStroke();
+    g.noStroke();
 
-    pushMatrix();
+    g.pushMatrix();
 
-    rotateX(rx);
-    rotateY(ry);
-    rotateZ(rz);
+    g.rotateX(rx);
+    g.rotateY(ry);
+    g.rotateZ(rz);
 
-    translate(x, y, z);
+    g.translate(x, y, z);
     //pulse(-1, 200);
     //pulseRainbow();
     //if (side == BACK_S) fill(0);
-    fill(c);
-    super.display();
+    g.fill(c);
+    super.display(g);
 
     //stroke(255);
-    noStroke();
+    g.noStroke();
     //sidesToRects(10);
     //drawMoveable();
-    popMatrix();
+    g.popMatrix();
 
     //checkMouseOver();
   }
@@ -107,16 +107,16 @@ class MoveableShape extends Shape {
     }
   }
 
-  void sidesToRects(int s) {
+  void sidesToRects(int s, PGraphics g) {
     int jump = 1;
-    pushMatrix();
-    if (side == BACK_S) translate(0, 0, jump);
-    else if (side == LEFT_S)translate(0, 0, jump);
-    else if (side == TOP_S) translate(0, 0, -jump);
-    else if (side == BOTTOM_S) translate(0, 0, jump);
-    else if (side == RIGHT_S) translate(0, 0, -jump);
-    super.sidesToRects(s);
-    popMatrix();
+    g.pushMatrix();
+    if (side == BACK_S) g.translate(0, 0, jump);
+    else if (side == LEFT_S)g.translate(0, 0, jump);
+    else if (side == TOP_S) g.translate(0, 0, -jump);
+    else if (side == BOTTOM_S) g.translate(0, 0, jump);
+    else if (side == RIGHT_S) g.translate(0, 0, -jump);
+    super.sidesToRects(s, g);
+    g.popMatrix();
   }
 
   PVector checkMouseOver() {

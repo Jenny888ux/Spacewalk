@@ -55,14 +55,14 @@ class Ball {
     if (position.x < -rectW/2 || position.x > rectW/2) {
       velocity.x = -velocity.x;
       acceleration.x = -acceleration.x;
-      wallHit(position);
+      //wallHit(position);
     }
     
     // check y
     if (position.y < -rectH/2 || position.y > rectH/2) {
       velocity.y = -velocity.y;
       acceleration.y = -acceleration.y;
-      wallHit(position);
+      //wallHit(position);
     }
   }
 }
