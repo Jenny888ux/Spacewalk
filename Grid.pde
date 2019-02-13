@@ -1,14 +1,14 @@
 
-void initGrid() {
-  rectMode(CENTER);
+void initGrid(PGraphics g) {
+  g.rectMode(CENTER);
   float fov = PI/3.0;
-  float cameraZ = (height/2.0) / tan(fov/2.0);
-  perspective(fov, float(width)/float(height), cameraZ/20.0, -5000);
+  float cameraZ = (g.height/2.0) / tan(fov/2.0);
+  g.perspective(fov, float(g.width)/float(g.height), cameraZ/20.0, -5000);
 
   numRectZ = 6;
   zSpacing = 300;
-  rectW = int(width*.75);
-  rectH = int(height*.75);
+  rectW = int(g.width*.75);
+  rectH = int(g.height*.75);
   //numLinesY = int(rectH*1.0/zSpacing);
   //numLinesX = int(rectW*1.0/zSpacing);
   numLinesY = 4;

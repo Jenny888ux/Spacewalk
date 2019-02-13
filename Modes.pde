@@ -70,7 +70,7 @@ void playMode() {
   else if (visualMode == V_PULSING_ON_LINE) pulseLinesCenter(1);
   else if (visualMode == V_SEGMENT_SHIFT) segmentShift(10);
   else if (visualMode == V_TRANSIT) transit(30);
-  else if (visualMode == V_DISPLAY) displayLines(255);
+  else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -148,7 +148,8 @@ void rotateAngle(int rate, int angleGap) {
 
 
 
-void displayLines(color c) {
+void displayLines(int sw, color c) {
+  strokeWeight(sw);
   for (int i = 0; i < lines.size(); i++) {
     stroke(c);
     fill(c);
@@ -156,7 +157,15 @@ void displayLines(color c) {
   }
 }
 
+void displayLines(int sw) {
+  strokeWeight(sw);
+  for (int i = 0; i < lines.size(); i++) {
+    lines.get(i).display();
+  }
+}
+
 void displayLines() {
+  strokeWeight(strokeVizWeight);
   for (int i = 0; i < lines.size(); i++) {
     lines.get(i).display();
   }
@@ -350,7 +359,7 @@ void showOne(int rate) {
   }
   if (pulseIndex >= lines.size()) pulseIndex = 0;
   else if (pulseIndex < 0) pulseIndex = 0;
-  lines.get(pulseIndex).display();
+  if (lines.size() > 0) lines.get(pulseIndex).display();
 }
 
 void pulsing(int rate) {

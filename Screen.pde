@@ -1,7 +1,8 @@
 import deadpixel.keystone.*;  // to modify keystone lib and then make a jar file: jar cvf keystone.jar .
 
-int screenW = 1200;
-int screenH = 800;
+float factor = 1.0;
+int screenW = int(1200*factor);
+int screenH = int(800*factor);
 
 Keystone ks;
 int keystoneNum = 0;
@@ -15,7 +16,7 @@ void initScreens() {
   surface = ks.createCornerPinSurface(screenW, screenH, 20);
   screen = createGraphics(screenW, screenH, P3D);
 
-  loadKeystone();
+  //loadKeystone();
 }
 
 

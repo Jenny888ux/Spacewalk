@@ -24,6 +24,20 @@ class MoveableShape extends Shape {
     addPoint(new PVector(-w/2, h/2, 0));
   }
 
+  void displayPerfect(int sw, PGraphics g) {
+    g.pushMatrix();
+    g.rotateX(rx);
+    g.rotateY(ry);
+    g.rotateZ(rz);
+    g.translate(x, y, z);
+    super.displayPerfect(sw, g);
+
+    //stroke(255);
+    g.noStroke();
+    g.popMatrix();
+
+  }
+
   void display(PGraphics g) {
     //fill(c);
     //noFill();
@@ -65,9 +79,13 @@ class MoveableShape extends Shape {
   }
 
 
+
+  // ah, so this creates a gradient from c1 to c2 and back to c1 so that they 
+  // can loop
+  // 
   void setGradientZ(color c1, color c2, int jump) {
     colorMode(HSB, 255);
-    int colhue = (frameCount%255) + zSide*jump;
+    int colhue = (int((counter/1.5))%255) + zSide*jump;
     if (colhue < 0) colhue += 255;
     else if (colhue > 255) colhue -= 255;
     colorMode(RGB, 255);
@@ -75,8 +93,7 @@ class MoveableShape extends Shape {
     if (colhue < 127) {
       m = constrain(map(colhue, 0, 127, 0, 1), 0, 1);
       c = lerpColor(c1, c2, m);
-    }
-    else {
+    } else {
       m = constrain(map(colhue, 127, 255, 0, 1), 0, 1);
       c = lerpColor(c2, c1, m);
     }

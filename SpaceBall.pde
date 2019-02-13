@@ -4,17 +4,21 @@ boolean KINECT_ON = false;
 import java.util.ArrayList;
 
 ///////////////////////////////////////
+int strokeVizWeight = 3;
+
 // MODES
 int VISUALIZE = 0;
 int ADD_NODES = 1;
 int ADD_EDGES = 2;
 int MOVE_NODES = 3;
 int MOVE_LINES = 4;
-int DELETE_NODES = 8;
-int SET_NODES_Z = 7;
 int SET_LINEZ = 5;
 int SET_CONST = 6;
+int SET_NODES_Z = 7;
+int DELETE_NODES = 8;
 int MOVEABLE_LINES = 9;
+int CALIBRATION = 10;
+int SHOW_PERFECT = 11;
 int mode = ADD_NODES;
 
 int currentScene = -1;
@@ -47,50 +51,73 @@ long lastChecked = 0;
 int visualIndex = 0;
 int lastCheckedMode = 0;
 color c1, c2;
+color [] zColors;
+float huePosition = 0;
+int counter = 0;
 
 void setup() {
-  //fullScreen(P3D);
-  size(800, 600, P3D);
-  
+  fullScreen(P3D);
+  //size(800, 600, P3D);
+
   lines = new ArrayList<Line>();
   shapes = new ArrayList<Shape>();
   nodes = new ArrayList<Node>();
-  
+
   initScreens();
   initModes();
-  initGrid();
+  initGrid(screen);
   setRects();
 
   colorMode(HSB, 255);
-  c1 = color(random(255), 255, 255);
-  c2 = color(random(255), 255, 255);
+
+  zColors = new color[6];
+  setRandomColors();
+  //setColors();
 }
 
 
 //--------------------------------------------------------------
 void draw() {
   background(0);
-  
-  
+
   if (mode == VISUALIZE) 
-    visualize();
+    visualize(screen);
   else {
-    screen.beginDraw();
-    screen.background(0);
+    visualizeSetting(screen);
     settingFunctions();
-    renderScreens();
-    screen.endDraw();
   }
 }
 
-void visualize() {
-  
+
+void visualizeSetting(PGraphics g) {
+  screen.beginDraw();
+  screen.background(0);
+  screen.pointLight(205, 205, 205, g.width/2, g.height/2, -100);
+  screen.pushMatrix();
+  screen.translate(g.width/2, g.height/2, 170);
+  setGradientZs();
+  //setColors();
+  if (mode != SHOW_PERFECT) displayShapes(screen);
+  else displayPerfectLines(3, screen);
+  screen.popMatrix();
+
+  screen.stroke(255);
+  screen.fill(255);
+  screen.strokeWeight(strokeVizWeight);
+
+  screen.endDraw();
+
+  renderScreens();
+}
+
+void visualize(PGraphics g) {
+
   noCursor();
   screen.beginDraw();
   screen.background(0);
   screen.pointLight(205, 205, 205, mouseX, mouseY, -100);
   screen.pushMatrix();
-  screen.translate(width/2, height/2, 0);
+  screen.translate(g.width/2, g.height/2, 150);
   //setRainbowPulse(20);
   setGradientZs();
   displayShapes(screen);
@@ -98,11 +125,12 @@ void visualize() {
 
   screen.stroke(255);
   screen.fill(255);
-  screen.strokeWeight(3);
+  screen.strokeWeight(strokeVizWeight);
+  strokeWeight(strokeVizWeight);
   changeMode();
   playMode();
   screen.endDraw();
-  
+
   renderScreens();
 }
 void changeMode() {
@@ -127,9 +155,14 @@ void keyPressed() {
   else if (key == 'n') mode = MOVE_NODES;
   else if (key == 'd') mode = DELETE_NODES;
   else if (key == 'z') mode = SET_LINEZ;
-  else if (key == 'c') toggleCalibration();
+  else if (key == 'p') mode = SHOW_PERFECT;
+  else if (key == 'c') {
+    mode = CALIBRATION;
+    toggleCalibration();
+  }
   else if (key == 'g') mode = SET_CONST;
   else if (key == 'v') mode = VISUALIZE;
+  else if (key == 'x') printLineLength();
   else if (mode == MOVE_LINES) {
     if (lineIndex >= 0) {
       Line l = lines.get(lineIndex);
@@ -293,30 +326,46 @@ void settingFunctions() {
   displayNodes();
   displayNodeLabels();
 
-  strokeWeight(3);
-  displayLines(255);
+  
 
   if (mode == ADD_EDGES) {
     drawLineToCurrent(mouseX, mouseY);
     displayBox(0, "ADD EDGES");
+    displayLines(strokeVizWeight, 255);
   } else if (mode == ADD_NODES) {
     ellipse(mouseX, mouseY, 20, 20);
     displayBox(20, "ADD NODES");
+    displayLines(strokeVizWeight, 255);
   } else if (mode == DELETE_NODES) {
-    displayLines(255);
+    displayLines(strokeVizWeight, 255);
     displayBox(50, "DELETE NODES");
   } else if (mode == MOVE_NODES || mode == MOVE_LINES) {
     displayCurrentNode();
     displayBox(70, "MOVE");
+    displayLines(strokeVizWeight, 255);
   } else if (mode == SET_NODES_Z) {
     displayLineZDepth();
     displayBox(100, "SET NODES Z");
     displayCurrentNode();
+    displayLines(strokeVizWeight, 255);
   } else if (mode == SET_CONST) {
     setConst();
     displayBox(140, "SET CONSTELLATIONS");
+    displayLines(strokeVizWeight, 255);
   } else if (mode == SET_LINEZ) {
     displayZIndexes();
+    displayLines(strokeVizWeight, 255);
+  } else if (mode == CALIBRATION) {
+    displayBox(130, "CALIBRATING MAP");
+    displayLines(strokeVizWeight, 255);
+  } else if (mode == SHOW_PERFECT) {
+    displayBox(140, "PERFECT LINES");
+  }
+}
+
+void displayPerfectLines(int sw, PGraphics g) {
+  for (Shape s : shapes) {
+    ((MoveableShape)s).displayPerfect(sw, g);
   }
 }
 
@@ -382,11 +431,75 @@ void rainbowStrip() {
   }
 }
 
+void setColors() {
+  colorMode(HSB, 255);
+
+  float hueJump = .1;
+
+  // happens every second?
+  if (millis() - lastChecked > 500) {
+    huePosition += hueJump;
+    if (huePosition > 1) {
+      huePosition = 0;
+      setNextRandomColor();
+    }
+    zColors[0] = lerpColor(c1, c2, huePosition);
+    for (int i = zColors.length-1; i > 0; i--) {
+      zColors[i] = zColors[i-1];
+    }
+    lastChecked = millis();
+  }
+
+  // all the time
+  for (Shape s : shapes) {
+    s.c = zColors[5-((MoveableShape) s).zSide];
+    //s.c = color((hue(c)+frameCount)%255, 255, 255);
+  }
+}
+
+void setNextRandomColor() {
+  colorMode(HSB, 255);
+  c2 = c1;
+  c1 = color(random(255), 255, 255);
+  //if (abs(hue(c1) - hue(c2)) < 40) {
+  //  c2 = color((hue(c2)+80)%255, 255, 255);
+  //}
+}
+
+void setRandomColors() {
+  colorMode(HSB, 255);
+
+  c1 = color(getRandomNormalizedHue(), 255, 255);
+  //c2 = color(getRandomNormalizedHue(), 255, 255);
+  c2 = color((hue(c2)+80)%255, 255, 255);
+  if (abs(hue(c1) - hue(c2)) < 40) {
+    c2 = color((hue(c2)+80)%255, 255, 255);
+  }
+}
+
+int getRandomNormalizedHue() {
+  int randC = int(random(11));
+  int h = 0;
+  int [] colRanges = {0, 15, 30, 45, 60, 105, 125, 150, 185, 210, 235};
+  if (randC == 0 || randC == 10) {
+    return int(random(235, 255+15)-15);
+  }
+  return int(random(colRanges[randC], colRanges[randC+1]));
+}
+
+// returns true if hues are more different than diff
+boolean areColorsDiff(color c1, color c2, int diff) {
+  return abs(hue(c1)-hue(c2)) > diff;
+}
+
 void setGradientZs() {
   colorMode(HSB, 255);
-  if (millis() - lastChecked > 8000) {
-    c1 = color(random(255), 255, 255);
-    c2 = color((hue(c1)+80)%255, 255, 255);
+  counter++;
+  if (millis() - lastChecked > 15000) {
+    //if (counter%255 == 127) {
+    println(counter);
+    setRandomColors();
+    //setNextRandomColor();
     lastChecked = millis();
   }
   for (Shape s : shapes) {

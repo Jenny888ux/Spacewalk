@@ -568,3 +568,13 @@ class Line {
     }
   }
 }
+
+
+void printLineLength() {
+  float len = 0;
+  for (Line l : lines) {
+    len += dist(l.p1.x, l.p1.y, l.p2.x, l.p2.y);
+  }
+  println("pixels: " + len);
+  println("inches: " + len*144/width);
+}
