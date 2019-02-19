@@ -2,7 +2,7 @@ class MoveableShape extends Shape {
 
   int side, xSide, ySide, zSide;
   float x, y, z, w, h, rx, ry, rz;
-
+  Line l1, l2;
 
   MoveableShape(int i, int side, int xSide, int ySide, int zSide, float x, float y, float z, float w, float h, float rx, float ry, float rz) {
     super(i);
@@ -24,6 +24,225 @@ class MoveableShape extends Shape {
     addPoint(new PVector(-w/2, h/2, 0));
   }
 
+
+
+  void initShapeLines() {
+    pushMatrix();
+
+    screen.pushMatrix();
+
+    //screen.translate(screen.width/2, screen.height/2, -525);
+
+    screen.translate(screen.width/2, screen.height/2, 170);
+    screen.scale(screenW/1200);
+    screen.rotateX(rx);
+    screen.rotateY(ry);
+    screen.rotateZ(rz);
+
+
+    screen.translate(x, y, z);
+
+    int p1 = 0, p2 = 0, p3 = 0, p4 = 0, o1 = 0, o2 = 0;
+    if (side == TOP_S || side == BOTTOM_S) {
+      // horiz towards back plane
+      p1 = 0;
+      p2 = 1;
+      o1 = X_ORIENT;
+      // horiz out of page
+      //p1 = 2;
+      //p2 = 3;
+
+      if (side == TOP_S) {
+        // right vert
+        p3 = 1;
+        p4 = 2;
+        o2 = Z_ORIENT;
+      } else {
+        // left vert
+        p3 = 3;
+        p4 = 0;
+        o2 = Z_ORIENT;
+      }
+    } else if (side == RIGHT_S || side == LEFT_S) {
+
+
+      // vert towards back plane
+      p1 = 1;
+      p2 = 2;
+      o1 = Y_ORIENT;
+
+      // vert towards out of screen
+      //p1 = 0;
+      // p2 = 3;
+
+      if (side == RIGHT_S) {
+        // horiz bottom
+        p3 = 2;
+        p4 = 3;
+        o2 = Z_ORIENT;
+      } else {
+        // horiz top
+        p3 = 0;
+        p4 = 1;
+        o2 = Z_ORIENT;
+      }
+    } else {
+      // vertical on back plane
+      p1 = 1;
+      p2 = 2;
+      o2 = Y_ORIENT;
+
+      // horizontal on back plane
+      p3 = 2;
+      p4 = 3;
+      o2 = X_ORIENT;
+    }
+
+
+    PVector point1 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p1).x, pts.get(p1).y)), int(screen.screenY(pts.get(p1).x, pts.get(p1).y)));
+    PVector point2 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p2).x, pts.get(p2).y)), int(screen.screenY(pts.get(p2).x, pts.get(p2).y)));
+   
+    lines.add(new Line(point1.x, point1.y, point2.x, point2.y, o1, side, xSide, ySide, zSide));
+    l1 = lines.get(lines.size()-1);
+    //PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
+    //PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
+    //lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
+    //l2 = lines.get(lines.size()-1);
+    // ---
+
+    //lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide) );
+    //l1 = lines.get(lines.size()-1);
+    //lines.add(new Line(screen.screenX(pts.get(p3).x, pts.get(p3).y), screen.screenY(pts.get(p3).x, pts.get(p3).y), screen.screenX(pts.get(p4).x, pts.get(p4).y), screen.screenY(pts.get(p4).x, pts.get(p4).y), 02, side, xSide, ySide, zSide) );
+    //l2 = lines.get(lines.size()-1);
+    if (zSide == 0) {
+      if (side == TOP_S || side == BOTTOM_S) {
+
+        // horiz towards out of page
+        p1 = 2;
+        p2 = 3;
+        o1 = X_ORIENT;
+      } else if (side == RIGHT_S || side == LEFT_S) {
+
+        // vert towards back plane
+        p1 = 0;
+        p2 = 3;
+        o1 = Y_ORIENT;
+      }
+      lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
+        screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
+    }
+
+    screen.popMatrix();
+    popMatrix();
+  }
+
+  void updateShapeLines() {
+    pushMatrix();
+
+    screen.pushMatrix();
+
+    //screen.translate(screen.width/2, screen.height/2, -525);
+
+    screen.translate(screen.width/2, screen.height/2, 170);
+    screen.scale(screenW/1200);
+    screen.rotateX(rx);
+    screen.rotateY(ry);
+    screen.rotateZ(rz);
+
+
+    screen.translate(x, y, z);
+
+    int p1 = 0, p2 = 0, p3 = 0, p4 = 0, o1 = 0, o2 = 0;
+    if (side == TOP_S || side == BOTTOM_S) {
+      // horiz towards back plane
+      p1 = 0;
+      p2 = 1;
+      o1 = X_ORIENT;
+      // horiz out of page
+      //p1 = 2;
+      //p2 = 3;
+
+      if (side == TOP_S) {
+        // right vert
+        p3 = 1;
+        p4 = 2;
+        o2 = Z_ORIENT;
+      } else {
+        // left vert
+        p3 = 3;
+        p4 = 0;
+        o2 = Z_ORIENT;
+      }
+    } else if (side == RIGHT_S || side == LEFT_S) {
+
+
+      // vert towards back plane
+      p1 = 1;
+      p2 = 2;
+      o1 = Y_ORIENT;
+
+      // vert towards out of screen
+      //p1 = 0;
+      // p2 = 3;
+
+      if (side == RIGHT_S) {
+        // horiz bottom
+        p3 = 2;
+        p4 = 3;
+        o2 = Z_ORIENT;
+      } else {
+        // horiz top
+        p3 = 0;
+        p4 = 1;
+        o2 = Z_ORIENT;
+      }
+    } else {
+      // vertical on back plane
+      p1 = 1;
+      p2 = 2;
+      o2 = Y_ORIENT;
+
+      // horizontal on back plane
+      p3 = 2;
+      p4 = 3;
+      o2 = X_ORIENT;
+    }
+
+
+    PVector point1 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p1).x, pts.get(p1).y)), int(screen.screenY(pts.get(p1).x, pts.get(p1).y)));
+    PVector point2 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p2).x, pts.get(p2).y)), int(screen.screenY(pts.get(p2).x, pts.get(p2).y)));
+    l1.update(point1, point2);
+
+    //PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
+    //PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
+    //lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
+    // ---
+
+    //lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide) );
+    //lines.add(new Line(screen.screenX(pts.get(p3).x, pts.get(p3).y), screen.screenY(pts.get(p3).x, pts.get(p3).y), screen.screenX(pts.get(p4).x, pts.get(p4).y), screen.screenY(pts.get(p4).x, pts.get(p4).y), 02, side, xSide, ySide, zSide) );
+
+    if (zSide == 0) {
+      if (side == TOP_S || side == BOTTOM_S) {
+
+        // horiz towards out of page
+        p1 = 2;
+        p2 = 3;
+        o1 = X_ORIENT;
+      } else if (side == RIGHT_S || side == LEFT_S) {
+
+        // vert towards back plane
+        p1 = 0;
+        p2 = 3;
+        o1 = Y_ORIENT;
+      }
+      lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
+        screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
+    }
+
+    screen.popMatrix();
+    popMatrix();
+  }
+
   void displayPerfect(int sw, PGraphics g) {
     g.pushMatrix();
     g.rotateX(rx);
@@ -35,7 +254,6 @@ class MoveableShape extends Shape {
     //stroke(255);
     g.noStroke();
     g.popMatrix();
-
   }
 
   void display(PGraphics g) {

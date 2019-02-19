@@ -1,6 +1,6 @@
 
 void initGrid(PGraphics g) {
-  g.rectMode(CENTER);
+  //g.rectMode(CENTER);
   float fov = PI/3.0;
   float cameraZ = (g.height/2.0) / tan(fov/2.0);
   g.perspective(fov, float(g.width)/float(g.height), cameraZ/20.0, -5000);
@@ -20,78 +20,78 @@ void initGrid(PGraphics g) {
   //balls.add(new Ball(200, 300, -500));
 }
 
-void drawGrid(PGraphics g) {
+//void drawGrid(PGraphics g) {
   
 
 
-  for (int z = 0; z < numRectZ; z++) {
-    g.noFill();
-    g.stroke(255);
-    g.strokeWeight(6);
-    g.pushMatrix();
-    g.translate(0, 0, z * -zSpacing);
-    g.rect(0, 0, rectW, rectH);
-    g.popMatrix();
-  }
+//  for (int z = 0; z < numRectZ; z++) {
+//    g.noFill();
+//    g.stroke(255);
+//    g.strokeWeight(6);
+//    g.pushMatrix();
+//    g.translate(0, 0, z * -zSpacing);
+//    g.rect(0, 0, rectW, rectH);
+//    g.popMatrix();
+//  }
 
-  // lines
-  for (int y = 0; y < numLinesY; y++) {
-    float ysp = rectH * 1.0/(numLinesY -1);
-    // left
-    g.line(-rectW/2, -rectH/2 + ysp*y, 0, -rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
-    // right
-    g.line(rectW/2, -rectH/2 + ysp*y, 0, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
-  }
-  for (int x = 0; x < numLinesX; x++) {
-    float xsp = rectW * 1.0/(numLinesX -1);
-    // top
-    g.line(-rectW/2+xsp*x, -rectH/2, 0, -rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing);
-    // bottom
-    g.line(-rectW/2+xsp*x, rectH/2, 0, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
-  }
+//  // lines
+//  for (int y = 0; y < numLinesY; y++) {
+//    float ysp = rectH * 1.0/(numLinesY -1);
+//    // left
+//    g.line(-rectW/2, -rectH/2 + ysp*y, 0, -rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+//    // right
+//    g.line(rectW/2, -rectH/2 + ysp*y, 0, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+//  }
+//  for (int x = 0; x < numLinesX; x++) {
+//    float xsp = rectW * 1.0/(numLinesX -1);
+//    // top
+//    g.line(-rectW/2+xsp*x, -rectH/2, 0, -rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing);
+//    // bottom
+//    g.line(-rectW/2+xsp*x, rectH/2, 0, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
+//  }
 
-  // back wall lines
-  for (int x = 0; x < numLinesX; x++) {
-    float xsp = rectW * 1.0/(numLinesX -1);
-    // up down
-    g.line(-rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
-  }
-  for (int y = 0; y < numLinesY; y++) {
-    float ysp = rectH * 1.0/(numLinesY -1);
-    // left right
-    g.line(-rectW/2, -rectH/2 + ysp*y, (numRectZ-1)*-zSpacing, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
-  }
-  for (Ball ball : balls) {
-    ball.run();
-  }
-  //drawSideRects();
+//  // back wall lines
+//  for (int x = 0; x < numLinesX; x++) {
+//    float xsp = rectW * 1.0/(numLinesX -1);
+//    // up down
+//    g.line(-rectW/2+xsp*x, -rectH/2, (numRectZ-1)*-zSpacing, -rectW/2+xsp*x, rectH/2, (numRectZ-1)*-zSpacing);
+//  }
+//  for (int y = 0; y < numLinesY; y++) {
+//    float ysp = rectH * 1.0/(numLinesY -1);
+//    // left right
+//    g.line(-rectW/2, -rectH/2 + ysp*y, (numRectZ-1)*-zSpacing, rectW/2, -rectH/2+ysp*y, (numRectZ-1)*-zSpacing);
+//  }
+//  for (Ball ball : balls) {
+//    ball.run();
+//  }
+//  //drawSideRects();
 
-  //drawTopRects();
+//  //drawTopRects();
 
-}
+//}
 
-void drawTopRects(PGraphics g) {
-  for (int x = 0; x < numLinesX-1; x++) {
-    for (int z = 0; z < numRectZ-1; z++) {
-      float xsp = rectW * 1.0/(numLinesX -1);
-      g.fill(10, 255, 255);
+//void drawTopRects(PGraphics g) {
+//  for (int x = 0; x < numLinesX-1; x++) {
+//    for (int z = 0; z < numRectZ-1; z++) {
+//      float xsp = rectW * 1.0/(numLinesX -1);
+//      g.fill(10, 255, 255);
 
-      // top
-      g.pushMatrix();
-      g.rotateX(radians(90));
-      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, rectH/2);
-      g.rect(0, 0, xsp, zSpacing); 
-      g.popMatrix();
+//      // top
+//      g.pushMatrix();
+//      g.rotateX(radians(90));
+//      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, rectH/2);
+//      g.rect(0, 0, xsp, zSpacing); 
+//      g.popMatrix();
 
-      // bottom
-      g.pushMatrix();
-      g.rotateX(radians(90));
-      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, -rectH/2);
-      g.rect(0, 0, xsp, zSpacing); 
-      g.popMatrix();
-    }
-  }
-}
+//      // bottom
+//      g.pushMatrix();
+//      g.rotateX(radians(90));
+//      g.translate(xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, -rectH/2);
+//      g.rect(0, 0, xsp, zSpacing); 
+//      g.popMatrix();
+//    }
+//  }
+//}
 
 void setRects() {
   int i = 0;
@@ -100,15 +100,30 @@ void setRects() {
   for (int x = 0; x < numLinesX-1; x++) {
     for (int z = 0; z < numRectZ-1; z++) {
       float xsp = rectW * 1.0/(numLinesX -1);
+       //MoveableShape(int i, int side, int xSide, int ySide, int zSide, float x, float y, float z, float w, float h, float rx, float ry, float rz) {
+ 
       shapes.add(new MoveableShape(i++, TOP_S, x, -1, z, xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, rectH/2, xsp, zSpacing, radians(90), 0, 0));
+    }
+  }
+  
+  // bottomRects
+  for (int x = 0; x < numLinesX-1; x++) {
+    for (int z = 0; z < numRectZ-1; z++) {
+      float xsp = rectW * 1.0/(numLinesX -1);
       shapes.add(new MoveableShape(i++, BOTTOM_S, x, -1, z, xsp*x-rectW/2+xsp/2, -zSpacing/2-zSpacing*z, -rectH/2, xsp, zSpacing, radians(90), 0, 0));
     }
   }
-  // sideRects
+  // leftRects
   for (int z = 0; z < numRectZ-1; z++) {
     for (int y = 0; y < numLinesY-1; y++) {
       float ysp = rectH * 1.0/(numLinesY -1);
       shapes.add(new MoveableShape(i++, LEFT_S, -1, y, z, zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, -rectW/2, zSpacing, ysp, 0, radians(90), 0));
+    }
+  }
+   // rightRects
+  for (int z = 0; z < numRectZ-1; z++) {
+    for (int y = 0; y < numLinesY-1; y++) {
+      float ysp = rectH * 1.0/(numLinesY -1);
       shapes.add(new MoveableShape(i++, RIGHT_S, -1, y, z, zSpacing/2 + z*zSpacing, -rectH/2+ysp/2+y*ysp, rectW/2, zSpacing, ysp, 0, radians(90), 0));
     }
   }

@@ -46,6 +46,9 @@ int BOTTOM_S = 1;
 int LEFT_S = 2;
 int RIGHT_S = 3;
 int BACK_S = 4;
+int X_ORIENT = 0;
+int Y_ORIENT = 1;
+int Z_ORIENT = 2;
 
 long lastChecked = 0;
 int visualIndex = 0;
@@ -67,24 +70,32 @@ void setup() {
   initModes();
   initGrid(screen);
   setRects();
+  
+ 
 
   colorMode(HSB, 255);
 
   zColors = new color[6];
   setRandomColors();
   //setColors();
+  
+  
 }
 
 
 //--------------------------------------------------------------
 void draw() {
   background(0);
+  //translate(width/2, height/2);
+  
+  //println(ks. + " " + ks.getSurface(0).TR + " " + ks.getSurface(0).BR + " " + ks.getSurface(0).BL);
+  //text(mouseX + " " + mouseY, mouseX, mouseY);
 
   if (mode == VISUALIZE) 
     visualize(screen);
   else {
     visualizeSetting(screen);
-    settingFunctions();
+    //settingFunctions();
   }
 }
 
@@ -92,13 +103,16 @@ void draw() {
 void visualizeSetting(PGraphics g) {
   screen.beginDraw();
   screen.background(0);
-  screen.pointLight(205, 205, 205, g.width/2, g.height/2, -100);
+  screen.pointLight(205, 205, 205, screen.width/2, screen.height/2, -100);
   screen.pushMatrix();
-  screen.translate(g.width/2, g.height/2, 170);
+  screen.translate(screen.width/2, screen.height/2, 170);
   setGradientZs();
-  //setColors();
-  if (mode != SHOW_PERFECT) displayShapes(screen);
-  else displayPerfectLines(3, screen);
+  if (mode != SHOW_PERFECT) {
+    displayShapes(screen);
+    displayLines(strokeVizWeight, 255);
+  }
+  else displayPerfectLines(5, screen);
+
   screen.popMatrix();
 
   screen.stroke(255);
@@ -108,6 +122,16 @@ void visualizeSetting(PGraphics g) {
   screen.endDraw();
 
   renderScreens();
+  drawLine(TOP_S, 1, Z_ORIENT, 3);
+  drawLine(TOP_S, 0, X_ORIENT, 3);
+  drawLine(TOP_S, 1, X_ORIENT, 3);
+  drawLine(BOTTOM_S, 1, Z_ORIENT, 2);
+  //drawCube(TOP_S, 1, 1);
+  //drawCube(BOTTOM_S, 1, 1);
+  //drawCube(LEFT_S, 1, 1);
+  //drawCube(RIGHT_S, 1, 1);
+  //drawCube(BACK_S, 1, 1);
+  //drawCircle(1);
 }
 
 void visualize(PGraphics g) {
@@ -147,6 +171,7 @@ void keyPressed() {
     saveShapes();
     saveLines();
     saveKeystone();
+    automateLinesGeneration();
   } else if (key == 'r') loadLines();
   else if (key == 'a') mode = ADD_NODES;
   else if (key == 'e') mode = ADD_EDGES;
@@ -159,8 +184,7 @@ void keyPressed() {
   else if (key == 'c') {
     mode = CALIBRATION;
     toggleCalibration();
-  }
-  else if (key == 'g') mode = SET_CONST;
+  } else if (key == 'g') mode = SET_CONST;
   else if (key == 'v') mode = VISUALIZE;
   else if (key == 'x') printLineLength();
   else if (mode == MOVE_LINES) {
@@ -244,6 +268,9 @@ void mouseReleased() {
   } else if (mode == SET_NODES_Z) {
     checkNodeClick(mouseX, mouseY);
     //updateLineZs();
+  } else if (mode == CALIBRATION) {
+    println("fgfgf");
+    updateLinePositions();
   }
 }
 
@@ -326,7 +353,7 @@ void settingFunctions() {
   displayNodes();
   displayNodeLabels();
 
-  
+
 
   if (mode == ADD_EDGES) {
     drawLineToCurrent(mouseX, mouseY);
@@ -411,8 +438,8 @@ void loadShapes() {
 }
 
 void displayShapes(PGraphics g) {
-  for (Shape s : shapes) {
-    s.display(g);
+  for (int i = 0; i < shapes.size(); i++) {
+    shapes.get(i).display(g);
   }
 }
 
@@ -497,7 +524,6 @@ void setGradientZs() {
   counter++;
   if (millis() - lastChecked > 15000) {
     //if (counter%255 == 127) {
-    println(counter);
     setRandomColors();
     //setNextRandomColor();
     lastChecked = millis();

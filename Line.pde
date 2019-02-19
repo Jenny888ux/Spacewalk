@@ -1,6 +1,87 @@
 int currentNodeIndex = -1;
 ArrayList<Node> nodes;
 
+// 
+
+
+void drawCircle(int zCircle) {
+  for (Line l : lines) {
+    if (l.side != BACK_S && zCircle-1 == l.zs && l.orient != Z_ORIENT) {
+      l.display(255);
+    }
+  }
+}
+
+// which side, whicn inner circle level, and then X_ORIENT or Y_ORIENT
+void drawLine(int side, int zCircle, int orient, int position) {
+  for (Line l : lines) {
+    if (l.side == side) {
+      if (side == TOP_S) {
+        if (orient == Z_ORIENT) {
+          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position-1) {
+            l.display(255);
+          }
+        } else if (orient == X_ORIENT) {
+          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
+            l.display(255);
+          }
+        }
+      }
+      else if (side == BOTTOM_S) {
+        if (orient == Z_ORIENT) {
+          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
+            l.display(255);
+          }
+        } else if (orient == X_ORIENT) {
+          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
+            l.display(255);
+          }
+        }
+      }
+    }
+  }
+}
+void drawCube(int side, int zCircle, int position) {
+  for (Line l : lines) {
+    if (l.side == side) {
+
+      if (side == TOP_S) {
+        if (zCircle == l.zs && position == l.xs ) {
+          l.display(255);
+        }
+      } else if ( side == BOTTOM_S) {
+      } else if (side == RIGHT_S || side == LEFT_S) {
+        if (position == l.ys && zCircle == l.zs) {
+          l.display(255);
+        }
+      } else {
+        if (position == l.xs && zCircle == l.ys) {
+          l.display(255);
+        }
+      }
+    }
+  }
+}
+
+void updateLinePositions() {
+   for (Shape s : shapes) {
+    ((MoveableShape)s).updateShapeLines();
+  }
+}
+
+void automateLinesGeneration() {
+  lines = new ArrayList<Line>();
+  for (Shape s : shapes) {
+    ((MoveableShape)s).initShapeLines();
+  }
+}
+
+/*
+I want to be able to query by row, column, and z depth
+ 
+ make a series of lines (all grouped into a bigger line?) with nodes along the way
+ */
+
 void addNode(int mx, int my) {
   nodes.add(new Node(nodes.size() + "", mx, my));
 }
@@ -51,7 +132,7 @@ void checkEdgeClick(int mx, int my) {
         // add link in adjacency matrix
         Node n2 = nodes.get(prevNodeIndex);
         Node n1 = nodes.get(currentNodeIndex);
-        lines.add(new Line(n1.getX(), n1.getY(), n2.getX(), n2.getY(), prevNodeIndex, currentNodeIndex));
+        //lines.add(new Line(n1.getX(), n1.getY(), n2.getX(), n2.getY(), prevNodeIndex, currentNodeIndex));
       }
     }
   }
@@ -147,7 +228,7 @@ void loadLines() {
     int z2 = lineJson.getInt("z2");
     int cg = lineJson.getInt("cg");
 
-    lines.add(new Line(x1, y1, z1, x2, y2, z2, id1, id2));
+    //lines.add(new Line(x1, y1, z1, x2, y2, z2, id1, id2));
     //lines.get(i).zIndex = z;
     lines.get(i).constellationG = cg;
   }
@@ -159,6 +240,7 @@ class Line {
 
   PVector p1;
   PVector p2;
+  PVector originalP1, originalP2;
   int zIndex = 0;
   int z1 = 0;
   int z2 = 0;
@@ -170,39 +252,63 @@ class Line {
   int twinkleRange = 0;
   long lastChecked = 0;
   int rainbowIndex = int(random(255));
+  int xs, ys, zs;
+  int orient;
+  int side;
 
-  Line(PVector p1, PVector p2, int id1, int id2) {
-    this.p1 = p1;
-    this.p2 = p2;
-    initLine();
-    this.id1 = id1;
-    this.id2 = id2;
-    //updateZ();
-  }
 
-  Line(Node n1, Node n2, int id1, int id2) {
-    this.p1.set(n1.getX(), n1.getY());
-    this.p2.set(n2.getX(), n2.getY());
-    initLine();
-    this.id1 = id1;
-    this.id2 = id2;
-    //updateZ();
-  }
-
-  Line(int x1, int y1, int x2, int y2, int id1, int id2) {
-    this(x1, y1, 0, x2, y2, 0, id1, id2);
-  }
-
-  Line(int x1, int y1, int z1, int x2, int y2, int z2, int id1, int id2) {
+  Line(float x1, float y1, float x2, float y2, int orient, int s, int xs, int ys, int zs) {
     this.p1 = new PVector(x1, y1);
     this.p2 = new PVector(x2, y2);
+    this.originalP1 =new PVector(x1, y1);
+    this.originalP2 = new PVector(x2, y2);
     initLine();
-    this.id1 = id1;
-    this.id2 = id2;
-    this.z1 = z1;
-    this.z2 = z2;
-    //updateZ();
+
+    this.id1 = 0;
+    this.id2 = 0;
+    this.z1 = zs;
+
+    this.orient = orient;
+    this.side = s;
+    this.xs = xs;
+    this.ys = ys;
+    this.zs = zs;
   }
+  
+  void update(PVector up1, PVector up2) {
+    println(p1);
+    println(up1);
+    
+    p1= new PVector(originalP1.x + ks.getSurface(0).x, originalP1.y + ks.getSurface(0).y);
+    p2= new PVector(originalP2.x + ks.getSurface(0).x, originalP2.y + ks.getSurface(0).y);
+    println(p1);
+    println("----");
+  }
+
+  //Line(PVector p1, PVector p2, int id1, int id2) {
+  //  this.p1 = p1;
+  //  this.p2 = p2;
+  //  initLine();
+  //  this.id1 = id1;
+  //  this.id2 = id2;
+  //  //updateZ();
+  //}
+
+
+  //Line(int x1, int y1, int x2, int y2, int id1, int id2) {
+  //  this(x1, y1, 0, x2, y2, 0, id1, id2);
+  //}
+
+  //Line(int x1, int y1, int z1, int x2, int y2, int z2, int id1, int id2) {
+  //  this.p1 = new PVector(x1, y1);
+  //  this.p2 = new PVector(x2, y2);
+  //  initLine();
+  //  this.id1 = id1;
+  //  this.id2 = id2;
+  //  this.z1 = z1;
+  //  this.z2 = z2;
+  //  //updateZ();
+  //}
 
   //void updateZ() {
   //  z1 = graphL.nodes.get(id1).z;

@@ -1,8 +1,11 @@
 import deadpixel.keystone.*;  // to modify keystone lib and then make a jar file: jar cvf keystone.jar .
 
-float factor = 1.0;
-int screenW = int(1200*factor);
-int screenH = int(800*factor);
+float scaleFactor = 1.4;
+int screenW = int(1200*scaleFactor);
+int screenH = int(800*scaleFactor);
+
+PVector test1 = new PVector(0, 0);
+PVector test2 = new PVector(100, 100);
 
 Keystone ks;
 int keystoneNum = 0;
@@ -22,7 +25,10 @@ void initScreens() {
 
 void saveKeystone() {
   ks.save("data/keystone/keystone.xml");
+  println(ks.getSurface(0).getTransformedCursor(int(test1.x),int(test1.y)));
+  //println(ks.getSurface(0).getTransformedCursor(100,100));
 }
+
 void loadKeystone() {
   ks.load("data/keystone/keystone.xml");
 }
