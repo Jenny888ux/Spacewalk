@@ -25,8 +25,11 @@ void initScreens() {
 
 void saveKeystone() {
   ks.save("data/keystone/keystone.xml");
-  println(ks.getSurface(0).getTransformedCursor(int(test1.x),int(test1.y)));
-  //println(ks.getSurface(0).getTransformedCursor(100,100));
+  //PVector t = ks.getSurface(0).getTransformedCursor(int(test1.x),int(test1.y));
+  //PVector t2 = ks.getSurface(0).TL;
+  
+  //println(ks.getSurface(0).mesh[0].x + " " + mouseX + " " + mouseY);
+  //println(t );
 }
 
 void loadKeystone() {

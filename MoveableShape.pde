@@ -209,15 +209,16 @@ class MoveableShape extends Shape {
     }
 
 
-    PVector point1 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p1).x, pts.get(p1).y)), int(screen.screenY(pts.get(p1).x, pts.get(p1).y)));
-    PVector point2 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p2).x, pts.get(p2).y)), int(screen.screenY(pts.get(p2).x, pts.get(p2).y)));
-    l1.update(point1, point2);
-
-    //PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
-    //PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
-    //lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
-    // ---
-
+    
+    //PVector mappedP1 = ks.getSurface(0).getPointOnTransformedPlane(pts.get(p1).x, pts.get(p1).y);
+    //PVector mappedP2 = ks.getSurface(0).getPointOnTransformedPlane(pts.get(p2).x, pts.get(p2).y);
+    //lines.add(new Line(mappedP1.x, mappedP1.y, mappedP2.x, mappedP2.y, o1, side, xSide, ySide, zSide) );
+    
+    //PVector mappedP3 = ks.getSurface(0).getPointOnTransformedPlane(pts.get(p3).x, pts.get(p3).y);
+    //PVector mappedP4 = ks.getSurface(0).getPointOnTransformedPlane(pts.get(p4).x, pts.get(p4).y);
+    //lines.add(new Line(mappedP3.x, mappedP3.y, mappedP4.x, mappedP4.y, o1, side, xSide, ySide, zSide) );
+    
+    
     //lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide) );
     //lines.add(new Line(screen.screenX(pts.get(p3).x, pts.get(p3).y), screen.screenY(pts.get(p3).x, pts.get(p3).y), screen.screenX(pts.get(p4).x, pts.get(p4).y), screen.screenY(pts.get(p4).x, pts.get(p4).y), 02, side, xSide, ySide, zSide) );
 
@@ -235,8 +236,8 @@ class MoveableShape extends Shape {
         p2 = 3;
         o1 = Y_ORIENT;
       }
-      lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
-        screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
+      //lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
+      //  screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
     }
 
     screen.popMatrix();

@@ -97,6 +97,15 @@ void draw() {
     visualizeSetting(screen);
     //settingFunctions();
   }
+  
+  fill(255, 0, 0);
+  ellipse(mouseX, mouseY, 20, 20);
+
+  // goes in opposite direction
+  // takes cursor on the transformed surface and gives it analagous coordinates in the main PApplet
+  PVector t = ks.getSurface(0).getPointOnTransformedPlane(mouseX, mouseY);
+  fill(0, 255, 0);
+  ellipse(t.x + ks.getSurface(0).x, t.y+ ks.getSurface(0).y, 20, 20);
 }
 
 
@@ -269,7 +278,6 @@ void mouseReleased() {
     checkNodeClick(mouseX, mouseY);
     //updateLineZs();
   } else if (mode == CALIBRATION) {
-    println("fgfgf");
     updateLinePositions();
   }
 }

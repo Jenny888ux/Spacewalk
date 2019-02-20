@@ -26,8 +26,7 @@ void drawLine(int side, int zCircle, int orient, int position) {
             l.display(255);
           }
         }
-      }
-      else if (side == BOTTOM_S) {
+      } else if (side == BOTTOM_S) {
         if (orient == Z_ORIENT) {
           if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
             l.display(255);
@@ -64,8 +63,8 @@ void drawCube(int side, int zCircle, int position) {
 }
 
 void updateLinePositions() {
-   for (Shape s : shapes) {
-    ((MoveableShape)s).updateShapeLines();
+  for (Line l : lines) {
+    l.update();
   }
 }
 
@@ -274,15 +273,10 @@ class Line {
     this.ys = ys;
     this.zs = zs;
   }
-  
-  void update(PVector up1, PVector up2) {
-    println(p1);
-    println(up1);
-    
-    p1= new PVector(originalP1.x + ks.getSurface(0).x, originalP1.y + ks.getSurface(0).y);
-    p2= new PVector(originalP2.x + ks.getSurface(0).x, originalP2.y + ks.getSurface(0).y);
-    println(p1);
-    println("----");
+
+  void update() {
+    p1 = ks.getSurface(0).getPointOnTransformedPlane(originalP1.x, originalP1.y).add(ks.getSurface(0).x, ks.getSurface(0).y);
+    p2 = ks.getSurface(0).getPointOnTransformedPlane(originalP2.x, originalP2.y).add(ks.getSurface(0).x, ks.getSurface(0).y);
   }
 
   //Line(PVector p1, PVector p2, int id1, int id2) {
