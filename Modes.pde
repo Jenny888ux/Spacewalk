@@ -15,7 +15,7 @@ int V_NONE,
   V_PULSING_ON_LINE, 
   V_SEGMENT_SHIFT, 
   V_FADE, 
-  V_DISPLAY,
+  V_DISPLAY, 
   V_TRANSIT;
 
 /////////////////////
@@ -36,6 +36,7 @@ int pulseIndex = 0;
 int lastCheckedPulse = 0;
 int pointDirection = 4;
 int seesawVals[] = {0, 0};
+boolean pulsingForward = false;
 
 void initModes() {
   int temp = -1;
@@ -58,17 +59,19 @@ void initModes() {
   V_DISPLAY = temp++;
 }
 void playMode() {
-  if (visualMode == V_ROTATE_ANGLE_COUNT) rotateAngleCounter(100, 20);
-  else if (visualMode == V_PULSE_LINE_BACK) pulseLineBack(500);
-  else if (visualMode == V_PULSE_LINE_RIGHT) pulseLineRight(90, 80);
+  visualMode = V_PULSING_ON_LINE;
+  //if (visualMode == V_ROTATE_ANGLE_COUNT) rotateAngleCounter(100, 20);   // could be fixed
+  //else 
+  if (visualMode == V_PULSE_LINE_BACK) pulseLineForBack(600); //pulseLineBack(200); // either do just one ring, or do two rings and laterals in between
+  else if (visualMode == V_PULSE_LINE_RIGHT) pulseLineRight(90, 80); // just do vertical lines or cubes around
   else if (visualMode == V_PULSE_LINE_LEFT)  pulseLineLeft(90, 80);
   else if (visualMode == V_PULSE_LINE_UP) pulseLineUp(90, 80);
   else if (visualMode == V_PULSE_LINE_DOWN) pulseLineDown(90, 80);
-  else if (visualMode == V_CYCLE_CONST) cycleConstellation(150);
-  else if (visualMode == V_PULSING) pulsing(9);
-  else if (visualMode == V_SHOW_ONE) showOne(100);
+
+  else if (visualMode == V_PULSING) pulsing(3);
+  //else if (visualMode == V_SHOW_ONE) showOne(500);
   else if (visualMode == V_PULSING_ON_LINE) pulseLinesCenter(1);
-  else if (visualMode == V_SEGMENT_SHIFT) segmentShift(10);
+  //else if (visualMode == V_SEGMENT_SHIFT) segmentShift(10);  // transit but now looks bad
   else if (visualMode == V_TRANSIT) transit(30);
   else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
 }
@@ -100,22 +103,6 @@ void transitHand(float per, color c) {
 }
 
 
-void rainbowRandom() {
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).displayRainbowRandom();
-  }
-}
-
-void rainbowCycle(int amt) {
-  colorMode(HSB, 255);
-  pulseIndex+= amt;
-  if (pulseIndex > 255) pulseIndex = 0;
-  for (int i=0; i< lines.size(); i++) {
-    //color c =  color(((i * 256 / lines.size()) + pulseIndex) % 255, 255, 255);
-    lines.get(i).displayRainbowCycle(pulseIndex);
-  }
-  colorMode(RGB, 255);
-}
 
 void rainbow() {
   pulseIndex++;
@@ -128,6 +115,10 @@ void rainbow() {
 }
 
 void segmentShift(int jump) {
+
+  pulseIndex++;
+  if (pulseIndex > 100) pulseIndex = 0;
+
   for (int i = 0; i < lines.size(); i++) {
     lines.get(i).displaySegment(pulseIndex / 100.0, .5);
   }
@@ -265,15 +256,6 @@ void pulseLinesCenter(int rate) {
   }
 }
 
-void randomSegments(int rate) {
-}
-
-void twinkleLines() {
-  for (int i = 0; i < lines.size(); i++) {
-    fill(255);
-    lines.get(i).twinkle(50);
-  }
-}
 
 void pulseLineRight(int rate, int bandSize) {
   if (millis() - lastCheckedPulse > rate) {
@@ -331,35 +313,64 @@ void pulseLineDown(int rate, int bandSize) {
 void pulseLineBack(int rate) {
   if (millis() - lastCheckedPulse > rate) {
     pulseIndex++;
-    if (pulseIndex > 9) {
+    if (pulseIndex > 8) {
       pulseIndex = -1;
     }
     lastCheckedPulse = millis();
   }
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).displayBandZ(pulseIndex, color(255));
-  }
+  drawCircle(pulseIndex, color(255));
+  drawCircle((pulseIndex-1), color(155));
+  drawCircle((pulseIndex-2), color(55));
+  //drawCubeRing(pulseIndex,color(255));
 }
 
-void cycleConstellation(int rate) {
+void pulseLineForward(int rate) {
   if (millis() - lastCheckedPulse > rate) {
-    pulseIndex++;
-    if (pulseIndex > 9) {
-      pulseIndex = 1;
+    pulseIndex--;
+    if (pulseIndex < -1) {
+      pulseIndex = 0;
     }
     lastCheckedPulse = millis();
   }
-  showConstellationLine(pulseIndex);
+  drawCircle(pulseIndex, color(255));
+  drawCircle((pulseIndex+1), color(155));
+  drawCircle((pulseIndex+2), color(55));
+  //drawCubeRing(pulseIndex,color(255));
 }
+
+void pulseLineForBack(int rate) {
+  //lightY = 100;
+  float per = map(constrain(lastCheckedPulse, 0, rate), 0, rate, 0, 1);
+  lightZ = int(map(pulseIndex+per, 0, 5, -100, -1000));
+  if (millis() - lastCheckedPulse > rate) {
+    lastCheckedPulse = millis();
+    if (pulsingForward) {
+      pulseIndex--;
+      if (pulseIndex < 1) {
+        pulsingForward = false;
+      }
+    } else {
+      pulseIndex++;
+      if (pulseIndex > 4) {
+        pulsingForward = true;
+      }
+    }
+  }
+  drawCircle(pulseIndex, color(255));
+}
+
 
 void showOne(int rate) {
   if (millis() - lastCheckedPulse > rate) {
     pulseIndex++;
     lastCheckedPulse = millis();
   }
-  if (pulseIndex >= lines.size()) pulseIndex = 0;
-  else if (pulseIndex < 0) pulseIndex = 0;
-  if (lines.size() > 0) lines.get(pulseIndex).display();
+  if (lines.size() > 0) {
+    for (int i = 0; i < 15; i++) {
+      int ind = (pulseIndex + 10*i)%lines.size();
+      lines.get(ind).display(255);
+    }
+  }
 }
 
 void pulsing(int rate) {
@@ -368,17 +379,10 @@ void pulsing(int rate) {
   int b = pulseIndex;
   if (pulseIndex > 255) b = int(map(pulseIndex, 255, 510, 255, 0));
   for (int i = 0; i < lines.size(); i++) {
-    stroke(b);
-    fill(b);
-    lines.get(i).display();
+    lines.get(i).display(b);
   }
 }
 
-void showConstellationLine(int l) {
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).displayConstellation(l, color(255));
-  }
-}
 
 void linePercentW(int per) {
   for (int i = 0; i < lines.size(); i++) {
@@ -398,30 +402,13 @@ void cycleModes(int rate) {
 
 
 
-void resetZIndex() {
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).setZIndex(0);
-  }
-}
-
-void resetConstellationG() {
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).setConstellationG(0);
-  }
-}
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 // KINECT MODES
 
 
 void playKinectModes(color c) {
   if (kinectMode == K_SPOTLIGHT) drawSpotlightLR(50, c);
-  else if (kinectMode == K_CONSTELLATION) {
-    checkConstellations();
-    if (triggered >= 0) playConstellations(2000);
-  } else if (kinectMode == K_AIR_Z) airBenderZ(c);
+  else if (kinectMode == K_AIR_Z) airBenderZ(c);
   else if (kinectMode == K_TRANSIT_X) airBenderX(c);
   else if (kinectMode == K_AIR_BRIGHT) brightnessAirBenderY(c);
   else if (kinectMode == K_AIR_LINE) linesXY(c);
@@ -476,64 +463,6 @@ void paint(int r, color c) {
 }
 
 
-void checkConstellations() {
-  if (triggered < 0) {
-    if (checkWhale(20)) {
-      triggered = 0;
-      triggeredTime = millis();
-    } else if (checkHand(20)) {
-      triggered = 1;
-      triggeredTime = millis();
-    } else if (checkOwl(20)) {
-      triggered = 2;
-      triggeredTime = millis();
-    } else if (checkMoth(20)) {
-      triggered = 3;
-      triggeredTime = millis();
-    } else if (checkOrchid(20)) {
-      triggered = 4;
-      triggeredTime = millis();
-    }
-  }
-}
-
-void playConstellations(int t) {
-  if (millis() - triggeredTime > t) {
-    triggered = -1;
-    triggeredTime = millis();
-  } else {
-    if (triggered == 0) drawWhale();
-    else if (triggered == 1) drawHand();
-    else if (triggered == 2) drawOwl();
-    else if (triggered == 3) drawMoth();
-    else if (triggered == 4) drawOrchid();
-  }
-}
-
-void drawWhale() {
-  rainbowCycle(20);
-  println("whale!!");
-}
-
-void drawHand() {
-  rainbowCycle(20);
-  println("hand!!");
-}
-
-void drawOwl() {
-  rainbowCycle(20);
-  println("owl!!");
-}
-
-void drawMoth() {
-  rainbowCycle(20);
-  println("moth!!");
-}
-
-void drawOrchid() {
-  rainbowCycle(20);
-  println("orchid!!");
-}
 
 
 void drawSpotlightLR(int rad, color c) {
@@ -549,40 +478,10 @@ void drawSpotlightLR(int rad, color c) {
 
 
 // good
-boolean checkMoth(int range) {
-  //float deg = map(degrees(handRAngle), -180, 180, 0, 360);
-  //println("moth HR: " + ( deg) + " should be 45");
-  return (withinRange(degrees(handRAngle), 55, range) && withinRange(degrees(handLAngle), 145, range));
-}
-
-//
-boolean checkOrchid(int range) {
-  //float deg = map(degrees(handRAngle), -180, 180, 0, 360);
-  //float deg2 = map(degrees(elbowRAngle), -180, 180, 0, 360);
-  //print("hand: " + deg + " " + withinRange(degrees(handLAngle), 250, range) + "|||| elbow: " + deg2 + " " + withinRange(degrees(elbowLAngle), 340, range));
-  //println("---" + "hand: " + deg + " " + withinRange(degrees(handRAngle), 300, range) + "|||| elbow: " + deg2 + " " + withinRange(degrees(elbowRAngle), 150, range));
-  return (withinRange(degrees(handRAngle), 300, range) && withinRange(degrees(elbowRAngle), 180, range)
-    && withinRange(degrees(handLAngle), 250, range) && withinRange(degrees(elbowLAngle), 340, range));
-}
-
-// good
 boolean checkHand(int range) {
   return (withinRange(degrees(handRAngle), 260, range) && withinRange(degrees(handLAngle), 180, range));
 }
 
-// good
-boolean checkOwl(int range) {
-  return (withinRange(degrees(handRAngle), 250, range) && withinRange(degrees(handLAngle), 290, range));
-}
-
-// good
-boolean checkWhale(int range) {
-  //float deg = map(degrees(handRAngle), -180, 180, 0, 360);
-  //float deg2 = map(degrees(elbowRAngle), -180, 180, 0, 360);
-  //println("handR: " + deg + " " + withinRange(degrees(handRAngle), 90, range) + "|||| handL: " + deg2 + " " + withinRange(degrees(handLAngle), 180, range));
-
-  return (withinRange(degrees(handRAngle), 300, range) && withinRange(degrees(handLAngle), 315, range));
-}
 
 boolean withinRange(float actual, float ideal, float range) {
   actual = map(actual, -180, 180, 0, 360);

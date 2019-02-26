@@ -1,45 +1,71 @@
 int currentNodeIndex = -1;
-ArrayList<Node> nodes;
+//ArrayList<Node> nodes;
+ArrayList<Line> lastLines = new ArrayList<Line>();
 
-// 
 
+//void setArrayLines() {
+//  for (int x = 0; x < numLinesX; x++) {
+//    for (int z = 0; z < numRectZ; z++) {
+//      if (x == 0) {
+//        topXLines[0][z] =
+//      }
+//    }
+//  }
+//}
 
-void drawCircle(int zCircle) {
-  for (Line l : lines) {
-    if (l.side != BACK_S && zCircle-1 == l.zs && l.orient != Z_ORIENT) {
-      l.display(255);
-    }
+void drawCubeRing(int zCircle, color c) {
+  drawCircle(zCircle, c);
+  drawCircle(zCircle+1, c);
+  for (int i = 0; i < 5; i++) {
+    drawLineTopZ(i, zCircle, c);
+    drawLineBottomZ(i, zCircle, c);
+    drawLineLeftZ(i, zCircle, c);
+    drawLineRightZ(i, zCircle, c);
   }
 }
 
-// which side, whicn inner circle level, and then X_ORIENT or Y_ORIENT
-void drawLine(int side, int zCircle, int orient, int position) {
-  for (Line l : lines) {
-    if (l.side == side) {
-      if (side == TOP_S) {
-        if (orient == Z_ORIENT) {
-          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position-1) {
-            l.display(255);
-          }
-        } else if (orient == X_ORIENT) {
-          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
-            l.display(255);
-          }
-        }
-      } else if (side == BOTTOM_S) {
-        if (orient == Z_ORIENT) {
-          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
-            l.display(255);
-          }
-        } else if (orient == X_ORIENT) {
-          if (zCircle-1 == l.zs && l.orient == orient && l.xs == position) {
-            l.display(255);
-          }
-        }
-      }
-    }
+void drawCubeBottom(int pos, int zCircle, color c) {
+  drawLineBottomX(pos, zCircle, c);
+  drawLineBottomX(pos, zCircle+1, c);
+  drawLineBottomZ(pos, zCircle, c);
+  drawLineBottomZ(pos+1, zCircle, c);
+}
+
+void drawCubeTop(int pos, int zCircle, color c) {
+  drawLineTopX(pos, zCircle, c);
+  drawLineTopX(pos, zCircle+1, c);
+  drawLineTopZ(pos, zCircle, c);
+  drawLineTopZ(pos+1, zCircle, c);
+}
+
+void drawCubeLeft(int pos, int zCircle, color c) {
+  drawLineLeftY(pos, zCircle, c);
+  drawLineLeftY(pos, zCircle+1, c);
+  drawLineLeftZ(pos, zCircle, c);
+  drawLineLeftZ(pos+1, zCircle, c);
+}
+
+void drawCubeRight(int pos, int zCircle, color c) {
+  drawLineRightY(pos, zCircle, c);
+  drawLineRightY(pos, zCircle+1, c);
+  drawLineRightZ(pos, zCircle, c);
+  drawLineRightZ(pos+1, zCircle, c);
+}
+
+
+void drawCircle(int zCircle, color c) {
+  for (int i = 0; i < 4; i++) {
+    drawLineTopX(i, zCircle, c);
+    drawLineBottomX(i, zCircle, c);
+  }
+  for (int i = 0; i < 3; i++) {
+    drawLineLeftY(i, zCircle, c);
+    drawLineRightY(i, zCircle, c);
   }
 }
+
+
+
 void drawCube(int side, int zCircle, int position) {
   for (Line l : lines) {
     if (l.side == side) {
@@ -73,6 +99,8 @@ void automateLinesGeneration() {
   for (Shape s : shapes) {
     ((MoveableShape)s).initShapeLines();
   }
+  //screen.endDraw();
+  lines.addAll(lines.size(), lastLines);
 }
 
 /*
@@ -81,109 +109,109 @@ I want to be able to query by row, column, and z depth
  make a series of lines (all grouped into a bigger line?) with nodes along the way
  */
 
-void addNode(int mx, int my) {
-  nodes.add(new Node(nodes.size() + "", mx, my));
-}
+//void addNode(int mx, int my) {
+//  nodes.add(new Node(nodes.size() + "", mx, my));
+//}
 
 boolean hasCurrentNode() {
   return (currentNodeIndex > -1);
 }
 
-void moveCurrentNode(int dx, int dy) {
-  nodes.get(currentNodeIndex).move(dx, dy);
-}
+//void moveCurrentNode(int dx, int dy) {
+//  nodes.get(currentNodeIndex).move(dx, dy);
+//}
 
-void displayCurrentNode() {
-  if (hasCurrentNode()) {
-    fill(0, 255, 0);
-    stroke(0, 255, 0);
-    nodes.get(currentNodeIndex).display();
-  }
-}
+//void displayCurrentNode() {
+//  if (hasCurrentNode()) {
+//    fill(0, 255, 0);
+//    stroke(0, 255, 0);
+//    //nodes.get(currentNodeIndex).display();
+//  }
+//}
 
-void setCurrentNodeZ(int zp) {
-  nodes.get(currentNodeIndex).z = zp;
-}
+//void setCurrentNodeZ(int zp) {
+//  nodes.get(currentNodeIndex).z = zp;
+//}
 
-int getClickedNode(int mx, int my) {
-  for (int i = 0; i < nodes.size(); i++) {
-    if (nodes.get(i).mouseOver(mx, my)) {
-      return i;
-    }
-  }
-  return -1;
-}
+//int getClickedNode(int mx, int my) {
+//  for (int i = 0; i < nodes.size(); i++) {
+//    if (nodes.get(i).mouseOver(mx, my)) {
+//      return i;
+//    }
+//  }
+//  return -1;
+//}
 
-void checkEdgeClick(int mx, int my) {
-  int prevNodeIndex = currentNodeIndex;
-  currentNodeIndex = getClickedNode(mx, my);
-  //cout << currentNodeIndex << " " << prevNodeIndex << std::endl;
-  // if we actually clicked on a star to create an edge
-  if (currentNodeIndex >= 0) {
-    // if we've already selected a star
-    if (prevNodeIndex >= 0) {
-      // oops, clicked on the same star
-      if (prevNodeIndex == currentNodeIndex) {
-        currentNodeIndex = -1;
-      }
-      // clicked a new star! let's add an edge
-      else {
-        // add link in adjacency matrix
-        Node n2 = nodes.get(prevNodeIndex);
-        Node n1 = nodes.get(currentNodeIndex);
-        //lines.add(new Line(n1.getX(), n1.getY(), n2.getX(), n2.getY(), prevNodeIndex, currentNodeIndex));
-      }
-    }
-  }
-}
-
-
-void checkNodeClick(int mx, int my) {
-  currentNodeIndex = getClickedNode(mx, my);
-}
-
-void checkDeleteNodeClick(int mx, int my) {
-  currentNodeIndex = getClickedNode(mx, my);
-  if (currentNodeIndex > -1) {
-    removeNode(currentNodeIndex);
-    currentNodeIndex = -1;
-  }
-}
-
-int getCurrentNode() {
-  //cout << currentNodeIndex << std::endl;
-  return currentNodeIndex;
-}
-
-void setCurrentNode(int num) {
-  this.currentNodeIndex = num;
-}
+//void checkEdgeClick(int mx, int my) {
+//  int prevNodeIndex = currentNodeIndex;
+//  //currentNodeIndex = getClickedNode(mx, my);
+//  //cout << currentNodeIndex << " " << prevNodeIndex << std::endl;
+//  // if we actually clicked on a star to create an edge
+//  if (currentNodeIndex >= 0) {
+//    // if we've already selected a star
+//    if (prevNodeIndex >= 0) {
+//      // oops, clicked on the same star
+//      if (prevNodeIndex == currentNodeIndex) {
+//        currentNodeIndex = -1;
+//      }
+//      // clicked a new star! let's add an edge
+//      else {
+//        // add link in adjacency matrix
+//        Node n2 = nodes.get(prevNodeIndex);
+//        Node n1 = nodes.get(currentNodeIndex);
+//        //lines.add(new Line(n1.getX(), n1.getY(), n2.getX(), n2.getY(), prevNodeIndex, currentNodeIndex));
+//      }
+//    }
+//  }
+//}
 
 
-void removeNode(int index) {
-  nodes.remove(index);
-  deleteLines(index);
-}
+//void checkNodeClick(int mx, int my) {
+//  currentNodeIndex = getClickedNode(mx, my);
+//}
 
-void displayNodes() {
-  for (int i = 0; i < nodes.size(); i++) {
-    nodes.get(i).display();
-  }
-}
+//void checkDeleteNodeClick(int mx, int my) {
+//  currentNodeIndex = getClickedNode(mx, my);
+//  if (currentNodeIndex > -1) {
+//    removeNode(currentNodeIndex);
+//    currentNodeIndex = -1;
+//  }
+//}
 
-void displayNodeLabels() {
-  for (int i = 0; i < nodes.size(); i++) {
-    nodes.get(i).displayLabel();
-  }
-}
+//int getCurrentNode() {
+//  //cout << currentNodeIndex << std::endl;
+//  return currentNodeIndex;
+//}
+
+//void setCurrentNode(int num) {
+//  this.currentNodeIndex = num;
+//}
 
 
-void drawLineToCurrent(int x, int y) {
-  stroke(255);
-  if (currentNodeIndex > -1 && currentNodeIndex < nodes.size()) {
-    line(nodes.get(currentNodeIndex).getX(), nodes.get(currentNodeIndex).getY(), x, y);
-  }
-}
+//void removeNode(int index) {
+//  nodes.remove(index);
+//  deleteLines(index);
+//}
+
+//void displayNodes() {
+//  for (int i = 0; i < nodes.size(); i++) {
+//    nodes.get(i).display();
+//  }
+//}
+
+//void displayNodeLabels() {
+//  for (int i = 0; i < nodes.size(); i++) {
+//    nodes.get(i).displayLabel();
+//  }
+//}
+
+
+//void drawLineToCurrent(int x, int y) {
+//  stroke(255);
+//  if (currentNodeIndex > -1 && currentNodeIndex < nodes.size()) {
+//    line(nodes.get(currentNodeIndex).getX(), nodes.get(currentNodeIndex).getY(), x, y);
+//  }
+//}
 
 
 void saveLines() {
@@ -196,15 +224,16 @@ void saveLines() {
     processing.data.JSONObject json2;
     json2 = new processing.data.JSONObject();
     Line l = lines.get(i);
-    json2.setInt("id1", l.id1);
-    json2.setInt("id2", l.id2);
     json2.setInt("x1", l.getX1());
     json2.setInt("y1", l.getY1());
     json2.setInt("x2", l.getX2());
     json2.setInt("y2", l.getY2());
-    json2.setInt("z1", l.z1);
-    json2.setInt("z2", l.z2);
-    json2.setInt("cg", l.constellationG);
+    json2.setInt("orient", l.orient);
+    json2.setInt("side", l.side);
+    json2.setInt("xs", l.xs);
+    json2.setInt("ys", l.ys);
+    json2.setInt("zs", l.zs);
+
 
     saveJSONObject(json2, "data/lines/line" + i + ".json");
   }
@@ -217,19 +246,19 @@ void loadLines() {
 
   for (int i = 0; i < linesNum; i++) {
     processing.data.JSONObject lineJson = loadJSONObject("data/lines/line" + i + ".json");
-    int id1 = lineJson.getInt("id1");
-    int id2 = lineJson.getInt("id2");
     int x1 = lineJson.getInt("x1");
     int y1 = lineJson.getInt("y1");
     int x2 = lineJson.getInt("x2");
     int y2 = lineJson.getInt("y2");
-    int z1 = lineJson.getInt("z1");
-    int z2 = lineJson.getInt("z2");
-    int cg = lineJson.getInt("cg");
+    int orient = lineJson.getInt("orient");
+    int side =  lineJson.getInt("side");
+    int xs =  lineJson.getInt("xs");
+    int ys =  lineJson.getInt("ys");
+    int zs =  lineJson.getInt("zs");
 
-    //lines.add(new Line(x1, y1, z1, x2, y2, z2, id1, id2));
+    lines.add(new Line(x1, y1, x2, y2, orient, side, xs, ys, zs));
     //lines.get(i).zIndex = z;
-    lines.get(i).constellationG = cg;
+    //lines.get(i).constellationG = cg;
   }
 }
 
@@ -240,15 +269,10 @@ class Line {
   PVector p1;
   PVector p2;
   PVector originalP1, originalP2;
-  int zIndex = 0;
-  int z1 = 0;
-  int z2 = 0;
-  float zAve = 0;
   float ang;
-  int id1, id2;
-  int constellationG = 0;
-  int twinkleT;
-  int twinkleRange = 0;
+  //int constellationG = 0;
+  //int twinkleT;
+  //int twinkleRange = 0;
   long lastChecked = 0;
   int rainbowIndex = int(random(255));
   int xs, ys, zs;
@@ -263,10 +287,6 @@ class Line {
     this.originalP2 = new PVector(x2, y2);
     initLine();
 
-    this.id1 = 0;
-    this.id2 = 0;
-    this.z1 = zs;
-
     this.orient = orient;
     this.side = s;
     this.xs = xs;
@@ -279,43 +299,14 @@ class Line {
     p2 = ks.getSurface(0).getPointOnTransformedPlane(originalP2.x, originalP2.y).add(ks.getSurface(0).x, ks.getSurface(0).y);
   }
 
-  //Line(PVector p1, PVector p2, int id1, int id2) {
-  //  this.p1 = p1;
-  //  this.p2 = p2;
-  //  initLine();
-  //  this.id1 = id1;
-  //  this.id2 = id2;
-  //  //updateZ();
-  //}
 
-
-  //Line(int x1, int y1, int x2, int y2, int id1, int id2) {
-  //  this(x1, y1, 0, x2, y2, 0, id1, id2);
-  //}
-
-  //Line(int x1, int y1, int z1, int x2, int y2, int z2, int id1, int id2) {
-  //  this.p1 = new PVector(x1, y1);
-  //  this.p2 = new PVector(x2, y2);
-  //  initLine();
-  //  this.id1 = id1;
-  //  this.id2 = id2;
-  //  this.z1 = z1;
-  //  this.z2 = z2;
-  //  //updateZ();
-  //}
-
-  //void updateZ() {
-  //  z1 = graphL.nodes.get(id1).z;
-  //  z2 = graphL.nodes.get(id2).z;
-  //  zAve = (z1 *1.0 + z2)/2.0;
-  //}
 
   void initLine() {
     leftToRight();
     ang = atan2(this.p1.y - this.p2.y, this.p1.x - this.p2.x);
     if (ang > PI/2) ang -= 2*PI;
-    twinkleT = int(random(50, 255));
-    twinkleRange = int(dist(p1.x, p1.y, p2.x, p2.y)/100);
+    //twinkleT = int(random(50, 255));
+    //twinkleRange = int(dist(p1.x, p1.y, p2.x, p2.y)/100);
   }
 
   void display(color c) {
@@ -336,6 +327,8 @@ class Line {
     float x2 = map(per, 0, 1.0, midX, p2.x);
     float y1 = map(per, 0, 1.0, midY, p1.y);
     float y2 = map(per, 0, 1.0, midY, p2.y);
+    stroke(255);
+    strokeWeight(strokeVizWeight);
     line(x1, y1, x2, y2);
   }
 
@@ -353,7 +346,7 @@ class Line {
 
   void displayZDepth() {
     colorMode(HSB, 255);
-    stroke(map(zAve, 0, 9, 0, 255), 255, 255);
+    stroke(map(zs, 0, 9, 0, 255), 255, 255);
     display();
     colorMode(RGB, 255);
   }
@@ -388,34 +381,7 @@ class Line {
     line(p1.x, p1.y, p2.x, p2.y);
   }
 
-  void fftConstellation(float c, float per) {
-    per = constrain(per, 0, 1.0);
-    int sw = int(map(per, 0, 1.0, 0, 5));
-    sw = constrain(sw, 0, 5);
-    if (sw < 1) noStroke();
-    else {
-      strokeWeight(sw);
-    }
-    if (constellationG == c)line(p1.x, p1.y, p2.x, p2.y);
-  }
 
-  void twinkle(int wait) {
-    int num = int(dist(p1.x, p1.y, p2.x, p2.y)/100);
-
-    if (millis() - lastChecked > wait) {
-      twinkleT = int(random(100, 255));
-      lastChecked = millis();
-      //if (twinkleT > 220) twinkleRange = num + int(random(3));
-    }
-
-    noStroke();
-    fill(twinkleT);
-    for (int i = 0; i < num; i++) {
-      float x = map(i, -.5, twinkleRange, p1.x, p2.x);
-      float y = map(i, -.5, twinkleRange, p1.y, p2.y);
-      ellipse(x, y, 4, 10);
-    }
-  }
 
   void displayBandX(int start, int end, color c) {
     if (p1.x > start && p1.x < end) {
@@ -444,7 +410,7 @@ class Line {
   }
 
   void displayBandZ(int start, int end, color c) {
-    if (z1 >= start && z1 < end) {
+    if (zs >= start && zs < end) {
       display(c);
     } else {
       displayNone();
@@ -452,7 +418,7 @@ class Line {
   }
 
   void displayBandZ(int band, color c) {
-    if (z1 == band) {
+    if (zs == band) {
       display(c);
     } else {
       displayNone();
@@ -465,13 +431,6 @@ class Line {
     //strokeWeight(2);
   }
 
-  void displayConstellation(int num, color c) {
-    if (constellationG == num) {
-      display(c);
-    } else {
-      displayNone();
-    }
-  }
 
   void displayAngle(int start, int end, color c) {
     if (end < -360) {
@@ -515,11 +474,9 @@ class Line {
     if ( (y > p1.y && y < p2.y) ) {
       xm = map(y, p1.y, p2.y, p1.x, p2.x);
       ellipse(xm, y, 10, 10);
-      //println(y + " " + xm);
     } else if (y > p2.y && y < p1.y) {
       xm = map(y, p2.y, p1.y, p2.x, p1.x);
       ellipse(xm, y, 10, 10);
-      //println(y + " " + xm);
     }
   }
 
@@ -541,57 +498,13 @@ class Line {
     return false;
   }
 
-  void setConstellationG(int k) {
-    constellationG = k;
-    println("constellation of " + id1 + "" + id2 + " is now " + k);
-  }
-
-  void setZIndex(int k) {
-    zIndex = k;
-    println("zIndex of " + id1 + "" + id2 + " is now " + k);
-  }
-
-  void displayByIDs(int id1, int id2) {
-    if (findByID(id1, id2)) {
-      display();
-    }
-  }
 
   void displayZIndex() {
     colorMode(HSB, 255);
-    display(color(map(zIndex, 0, numRectZ-1, 0, 255), 255, 255));
+    display(color(map(zs, 0, numRectZ-1, 0, 255), 255, 255));
   }
 
-  void displayByIDsPercent(int id1, int id2, float per) {
-    if (findByID(id1, id2)) {
-      displayPercent(per);
-    }
-  }
 
-  void displayRainbowCycle(int pulse) {
-    //color c =  color(((i * 256 / lines.size()) + pulseIndex) % 255, 255, 255);
-    colorMode(HSB, 255);
-    for (float i = 0; i < 50; i++) {
-      if (z1 <= z2) {
-        float z = map(i, 0, 50, z1, z2);
-        float s = map(z, 0, 9, 0, 255);
-        stroke((s+pulse)%255, 255, 255);
-
-        PVector pTemp = PVector.lerp(p1, p2, i/50.0);
-        PVector pTempEnd = PVector.lerp(pTemp, p2, (i+1)/50.0);
-        line(pTemp.x, pTemp.y, pTempEnd.x, pTempEnd.y);
-      }
-    }
-    colorMode(RGB, 255);
-  }
-
-  void displayRainbowRandom() {
-    rainbowIndex++;
-    if (rainbowIndex > 255) rainbowIndex = 0;
-    colorMode(HSB, 255);
-    display(color(rainbowIndex, 255, 255));
-    colorMode(RGB, 255);
-  }
 
   void handLight(float x, float y, int rad, color c) {
     float i = 0.0;
@@ -624,17 +537,12 @@ class Line {
 
   void displaySegment(float startPer, float sizePer) {
     PVector pTemp = PVector.lerp(p1, p2, startPer);
-    PVector pTempEnd = PVector.lerp(pTemp, p2, startPer + sizePer);
+    PVector pTempEnd = PVector.lerp(pTemp, p2, constrain(startPer + sizePer, 0, 1));
+    stroke(255);
+    strokeWeight(strokeVizWeight);
     line(pTemp.x, pTemp.y, pTempEnd.x, pTempEnd.y);
   }
 
-  boolean findByID(int id1, int id2) {
-    return (this.id1 == id1 && this.id2 == id2) || (this.id2 == id1 && this.id1 == id2);
-  }
-
-  boolean findByID(int id) {
-    return (this.id1 == id || this.id2 == id);
-  }
 
   int getX1() {
     return int(p1.x);
@@ -654,7 +562,7 @@ class Line {
 
   void setGradientZ(color c1, color c2, int jump) {
     colorMode(HSB, 255);
-    int colhue = (frameCount%255) + zIndex*jump;
+    int colhue = (frameCount%255) + zs*jump;
     if (colhue < 0) colhue += 255;
     else if (colhue > 255) colhue -= 255;
     colorMode(RGB, 255);
@@ -677,4 +585,259 @@ void printLineLength() {
   }
   println("pixels: " + len);
   println("inches: " + len*144/width);
+}
+
+void drawLine(int side, int orient, int position, int zCircle, color c) {
+  if (side == TOP_S) {
+    if (orient == X_ORIENT) {
+      drawLineTopX(position, zCircle, c);
+    } else if (orient == Z_ORIENT) {
+      drawLineTopZ(position, zCircle, c);
+    }
+    // NOT DONE
+  }
+}
+
+void drawLineRightZ(int position, int zCircle, color c) {
+  Line l = getLineRightZ(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+Line getLineRightZ(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 4 && zCircle >= 0 && zCircle < 5) {
+      return getLine(RIGHT_S, Z_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineLeftZ(int position, int zCircle, color c) {
+  Line l = getLineLeftZ(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineLeftZ(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 4 && zCircle >= 0 && zCircle < 5) {
+      return getLine(LEFT_S, Z_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineBottomZ(int position, int zCircle, color c) {
+  Line l = getLineBottomZ(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineBottomZ(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 4 && zCircle >= 0 && zCircle < 5) {
+      return getLine(BOTTOM_S, Z_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineTopZ(int position, int zCircle, color c) {
+  Line l = getLineTopZ(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+Line getLineTopZ(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 4 && zCircle >= 0 && zCircle < 5) {
+      return getLine(TOP_S, Z_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineRightY(int position, int zCircle, color c) {
+  Line l = getLineRightY(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+Line getLineRightY(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 3 && zCircle >= 0 && zCircle < 6) {
+      return getLine(RIGHT_S, Y_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineLeftY(int position, int zCircle, color c) {
+  Line l = getLineLeftY(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineLeftY(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 3 && zCircle >= 0 && zCircle < 6) {
+      return getLine(LEFT_S, Y_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineBottomX(int position, int zCircle, color c) {
+  Line l = getLineBottomX(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineBottomX(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 3 && zCircle >= 0 && zCircle < 6) {
+      return getLine(BOTTOM_S, X_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+void drawLineTopX(int position, int zCircle, color c) {
+  Line l = getLineTopX(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineTopX(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 3 && zCircle >= 0 && zCircle < 6) {
+      return getLine(TOP_S, X_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+
+void drawLineBackY(int position, int zCircle, color c) {
+  Line l = getLineBackY(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+
+Line getLineBackY(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 4 && zCircle >= 0 && zCircle < 3) {
+      return getLine(BACK_S, Y_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+
+void drawLineBackX(int position, int zCircle, color c) {
+  Line l = getLineBackX(position, zCircle);
+  if (l != null) l.display(c);
+}
+
+Line getLineBackX(int position, int zCircle) {
+  if (lines.size() > 0) {
+    if (position  >= 0 && position < 3 && zCircle >= 0 && zCircle < 4) {
+      return getLine(BACK_S, X_ORIENT, position, zCircle);
+    }
+  }
+  return null;
+}
+
+
+
+Line getLine(int side, int orient, int position, int zCircle) {
+  int start = 0;
+  int index = 0;
+  if (side == TOP_S) {
+    start = 0;
+    if (orient == Z_ORIENT) {
+      if (position == 0) {
+        return getLine(LEFT_S, Z_ORIENT, 3, zCircle);
+      }
+      index = start + ((zCircle) + position* (numRectZ-1))*2 + 1;
+      if (side == TOP_S) {
+        index = start + ((zCircle) + (position-1) * (numRectZ-1))*2 + 1;
+        return lines.get(index);
+      }
+    } else if (orient == X_ORIENT) {
+      if (zCircle == 0) {
+        return lines.get(lines.size()-12 + position);
+      } else {
+
+        index = start + ((zCircle-1) + (position)* (numRectZ-1))*2;
+        return lines.get(index);
+      }
+    }
+  } else if (side == BOTTOM_S) {
+    start = (numLinesX+1) * (numRectZ);
+    if (orient == Z_ORIENT) {
+      if (position == 3) {
+        return getLine(RIGHT_S, Z_ORIENT, 0, zCircle);
+      }
+      index = start + ((zCircle) + position* (numRectZ-1))*2 + 1;
+      return lines.get(index);
+    } else if (orient == X_ORIENT) {
+      if (zCircle == 0) {
+        return lines.get(lines.size()-9 + position);
+      } else {
+
+        index = start + ((zCircle-1) + (position)* (numRectZ-1))*2;
+        return lines.get(index);
+      }
+    }
+  } else if (side == LEFT_S) {
+    start = (numLinesX+1) * (numRectZ)*2;
+
+    if (orient == Y_ORIENT) {
+      if (zCircle == 0) {
+        return lines.get(lines.size()-6 + 2-position);
+      }
+      index = start +  ((zCircle-1) * (numLinesX-1) +(2-position))*2; // FIX
+      return lines.get(index);
+    } else if (orient == Z_ORIENT) {
+      if (position == 0) {
+        return getLine(BOTTOM_S, Z_ORIENT, 0, zCircle);
+      }
+      index = start +  ((zCircle) *(numLinesY-1) + 2-(position-1))*2 + 1;
+      return lines.get(index);
+    }
+    // y +1
+    // y minus one for zcircle
+  } else if (side == RIGHT_S) {
+    start = (numLinesX+1) * (numRectZ)*3;
+    if (orient == Y_ORIENT) {
+      if (zCircle == 0) {
+        return lines.get(lines.size()-3 + 2-position);
+      }
+      index = start +  ((zCircle-1) * (numLinesX-1) +(2-position))*2;
+      return lines.get(index);
+    } else if (orient == Z_ORIENT) {
+      if (position == 3) {
+        return getLine(TOP_S, Z_ORIENT, 3, zCircle);
+      }
+      //index = start + ((zCircle) *3 + 2-position)*2 +1; 
+      index = start +  ((zCircle) * (numLinesX-1) +(2-position))*2+1;
+      return lines.get(index);
+    }
+  } else if (side == BACK_S) {
+    start = (numLinesX+1) * (numRectZ)*4;
+    if (orient == Y_ORIENT) {
+      if (position == 0) {
+        return getLine(LEFT_S, Y_ORIENT, 2-zCircle, 5);
+      }
+      index = start +  ((2-zCircle) + (numLinesY-1) *(position-1))*2;
+      return lines.get(index);
+    } else if (orient == X_ORIENT) {
+      if (zCircle == 3) {
+        return getLine(TOP_S, X_ORIENT, position, 5);
+      }
+      index = start +  ((2-zCircle) + (numLinesY-1) *(position))*2+1;
+      return lines.get(index);
+    }
+  }
+
+  return null;
 }

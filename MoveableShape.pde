@@ -101,19 +101,16 @@ class MoveableShape extends Shape {
 
     PVector point1 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p1).x, pts.get(p1).y)), int(screen.screenY(pts.get(p1).x, pts.get(p1).y)));
     PVector point2 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p2).x, pts.get(p2).y)), int(screen.screenY(pts.get(p2).x, pts.get(p2).y)));
-   
     lines.add(new Line(point1.x, point1.y, point2.x, point2.y, o1, side, xSide, ySide, zSide));
     l1 = lines.get(lines.size()-1);
-    //PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
-    //PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
-    //lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
-    //l2 = lines.get(lines.size()-1);
-    // ---
-
-    //lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide) );
-    //l1 = lines.get(lines.size()-1);
-    //lines.add(new Line(screen.screenX(pts.get(p3).x, pts.get(p3).y), screen.screenY(pts.get(p3).x, pts.get(p3).y), screen.screenX(pts.get(p4).x, pts.get(p4).y), screen.screenY(pts.get(p4).x, pts.get(p4).y), 02, side, xSide, ySide, zSide) );
-    //l2 = lines.get(lines.size()-1);
+    
+    
+    
+    PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
+    PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
+    lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
+    l2 = lines.get(lines.size()-1);
+   
     if (zSide == 0) {
       if (side == TOP_S || side == BOTTOM_S) {
 
@@ -128,8 +125,9 @@ class MoveableShape extends Shape {
         p2 = 3;
         o1 = Y_ORIENT;
       }
-      lines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
+      lastLines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
         screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
+      
     }
 
     screen.popMatrix();

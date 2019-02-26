@@ -1,25 +1,31 @@
 
 boolean KINECT_ON = false;
+boolean LOADING = false;
 
 import java.util.ArrayList;
 
+int delayTest = 0;
+int currentX = 0, currentY = 0, currentZ = 0;
+Line currentLine;
+
+int lightX = 500, lightY = 500, lightZ = -100;
 ///////////////////////////////////////
 int strokeVizWeight = 3;
 
 // MODES
 int VISUALIZE = 0;
-int ADD_NODES = 1;
-int ADD_EDGES = 2;
-int MOVE_NODES = 3;
+//int ADD_NODES = 1;
+//int ADD_EDGES = 2;
+//int MOVE_NODES = 3;
 int MOVE_LINES = 4;
-int SET_LINEZ = 5;
-int SET_CONST = 6;
-int SET_NODES_Z = 7;
-int DELETE_NODES = 8;
+//int SET_LINEZ = 5;
+//int SET_CONST = 6;
+//int SET_NODES_Z = 7;
+//int DELETE_NODES = 8;
 int MOVEABLE_LINES = 9;
 int CALIBRATION = 10;
 int SHOW_PERFECT = 11;
-int mode = ADD_NODES;
+int mode = MOVE_LINES;
 
 int currentScene = -1;
 int visualMode = -1;
@@ -64,22 +70,25 @@ void setup() {
 
   lines = new ArrayList<Line>();
   shapes = new ArrayList<Shape>();
-  nodes = new ArrayList<Node>();
+  //nodes = new ArrayList<Node>();
 
   initScreens();
   initModes();
   initGrid(screen);
   setRects();
-  
- 
+
+
 
   colorMode(HSB, 255);
 
   zColors = new color[6];
   setRandomColors();
   //setColors();
-  
-  
+
+  if (LOADING) {
+    loadKeystone();
+    loadLines();
+  }
 }
 
 
@@ -87,25 +96,38 @@ void setup() {
 void draw() {
   background(0);
   //translate(width/2, height/2);
-  
-  //println(ks. + " " + ks.getSurface(0).TR + " " + ks.getSurface(0).BR + " " + ks.getSurface(0).BL);
-  //text(mouseX + " " + mouseY, mouseX, mouseY);
 
-  if (mode == VISUALIZE) 
+  if (mode == VISUALIZE) {
+    displayLines(strokeVizWeight, 0);
     visualize(screen);
+    
+  }
   else {
     visualizeSetting(screen);
-    //settingFunctions();
+    settingFunctions();
   }
   
-  fill(255, 0, 0);
-  ellipse(mouseX, mouseY, 20, 20);
+}
 
-  // goes in opposite direction
-  // takes cursor on the transformed surface and gives it analagous coordinates in the main PApplet
-  PVector t = ks.getSurface(0).getPointOnTransformedPlane(mouseX, mouseY);
-  fill(0, 255, 0);
-  ellipse(t.x + ks.getSurface(0).x, t.y+ ks.getSurface(0).y, 20, 20);
+void drawAllLines() {
+  for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineTopX(i, j, color(255));
+      drawLineTopZ(i, j, color(255));
+
+      drawLineBottomX(i, j, color(255));
+      drawLineBottomZ(i, j, color(255));
+
+      drawLineLeftY(i, j, color(255));
+      drawLineLeftZ(i, j, color(255));
+
+      drawLineRightY(i, j, color(255));
+      drawLineRightZ(i, j, color(255));
+
+      drawLineBackX(i, j, color(255));
+      drawLineBackY(i, j, color(255));
+    }
+  }
 }
 
 
@@ -118,9 +140,9 @@ void visualizeSetting(PGraphics g) {
   setGradientZs();
   if (mode != SHOW_PERFECT) {
     displayShapes(screen);
-    displayLines(strokeVizWeight, 255);
-  }
-  else displayPerfectLines(5, screen);
+    //displayLines(strokeVizWeight, 255);
+  } 
+  //else displayPerfectLines(5, screen);
 
   screen.popMatrix();
 
@@ -131,16 +153,6 @@ void visualizeSetting(PGraphics g) {
   screen.endDraw();
 
   renderScreens();
-  drawLine(TOP_S, 1, Z_ORIENT, 3);
-  drawLine(TOP_S, 0, X_ORIENT, 3);
-  drawLine(TOP_S, 1, X_ORIENT, 3);
-  drawLine(BOTTOM_S, 1, Z_ORIENT, 2);
-  //drawCube(TOP_S, 1, 1);
-  //drawCube(BOTTOM_S, 1, 1);
-  //drawCube(LEFT_S, 1, 1);
-  //drawCube(RIGHT_S, 1, 1);
-  //drawCube(BACK_S, 1, 1);
-  //drawCircle(1);
 }
 
 void visualize(PGraphics g) {
@@ -148,9 +160,9 @@ void visualize(PGraphics g) {
   noCursor();
   screen.beginDraw();
   screen.background(0);
-  screen.pointLight(205, 205, 205, mouseX, mouseY, -100);
+  screen.pointLight(205, 205, 205, lightX, lightY, lightZ); //-100);
   screen.pushMatrix();
-  screen.translate(g.width/2, g.height/2, 150);
+  screen.translate(g.width/2, g.height/2, 170);
   //setRainbowPulse(20);
   setGradientZs();
   displayShapes(screen);
@@ -178,64 +190,43 @@ void changeMode() {
 void keyPressed() {
   if (key == 's') {
     saveShapes();
-    saveLines();
     saveKeystone();
+    saveLines();
+  } else if (key == 'r') {
+    loadLines();
+    loadKeystone();
+  }
+  //else if (key == 'a') mode = ADD_NODES;
+  else if (key == 'e') {
+    //mode = ADD_EDGES;
     automateLinesGeneration();
-  } else if (key == 'r') loadLines();
-  else if (key == 'a') mode = ADD_NODES;
-  else if (key == 'e') mode = ADD_EDGES;
-  else if (key == 'm') mode = MOVE_LINES;
+  } else if (key == 'm') mode = MOVE_LINES;
   else if (key == 't') mode = MOVEABLE_LINES;
-  else if (key == 'n') mode = MOVE_NODES;
-  else if (key == 'd') mode = DELETE_NODES;
-  else if (key == 'z') mode = SET_LINEZ;
+  //else if (key == 'n') mode = MOVE_NODES;
+  //else if (key == 'd') mode = DELETE_NODES;
+  //else if (key == 'z') mode = SET_LINEZ;
   else if (key == 'p') mode = SHOW_PERFECT;
   else if (key == 'c') {
     mode = CALIBRATION;
     toggleCalibration();
-  } else if (key == 'g') mode = SET_CONST;
+  } 
+  //else if (key == 'g') mode = SET_CONST;
   else if (key == 'v') mode = VISUALIZE;
   else if (key == 'x') printLineLength();
   else if (mode == MOVE_LINES) {
-    if (lineIndex >= 0) {
-      Line l = lines.get(lineIndex);
-      if (keyCode == UP) l.moveP1(0, -1);
-      else if (keyCode == DOWN) l.moveP1(0, 1);
-      else if (keyCode == RIGHT) l.moveP1(1, 0);
-      else if (keyCode == LEFT) l.moveP1(-1, 0);
-      else if (key == 'i') l.moveP2(0, -1);     
-      else if (key == 'k') l.moveP2(0, 1);     
-      else if (key == 'l') l.moveP2(1, 0);
-      else if (key == 'j') l.moveP2(-1, 0);
+    if (currentLine != null) {
+      if (keyCode == UP) currentLine.moveP1(0, -1);
+      else if (keyCode == DOWN) currentLine.moveP1(0, 1);
+      else if (keyCode == RIGHT) currentLine.moveP1(1, 0);
+      else if (keyCode == LEFT) currentLine.moveP1(-1, 0);
+      else if (key == 'i') currentLine.moveP2(0, -1);     
+      else if (key == 'k') currentLine.moveP2(0, 1);     
+      else if (key == 'l') currentLine.moveP2(1, 0);
+      else if (key == 'j') currentLine.moveP2(-1, 0);
     }
-  } else if (mode == MOVE_NODES) {
-    if (hasCurrentNode()) {
-      if (keyCode == UP) moveCurrentNode(0, -1);
-      else if (keyCode == DOWN) moveCurrentNode(0, 1);
-      else if (keyCode == RIGHT) moveCurrentNode(1, 0);
-      else if (keyCode == LEFT) moveCurrentNode(-1, 0);
-    }
-  } else if (mode == SET_LINEZ) {
-    println(parseInt(key));
-    int k = parseInt(key) - 48;
-    if (k > 0 && k < 9) {
-      lines.get(lineIndex).setZIndex(k);
-    }
-  } else if (mode == SET_NODES_Z) {
-    if (hasCurrentNode()) {
-      println(parseInt(key));
-      int k = parseInt(key) - 48;
-      if (k > 0 && k < 9) {
-        setCurrentNodeZ(k);
-      }
-    }
-  } else if (mode == SET_CONST) {
-    int k = parseInt(key) - 48;
-    if (k > 0 && k < 9) {
-      lines.get(lineIndex).setConstellationG(k);
-    }
-  } else if (mode == VISUALIZE) {
   }
+
+
   return;
 }
 
@@ -256,28 +247,7 @@ void mousePressed() {
 
 //--------------------------------------------------------------
 void mouseReleased() {
-  if (mode == ADD_NODES) {
-    displayLines();
-    addNode(mouseX, mouseY);
-  } else if (mode == MOVE_NODES) {
-    displayNodes();
-    checkNodeClick(mouseX, mouseY);
-  } else if (mode == ADD_EDGES) {
-    checkEdgeClick(mouseX, mouseY);
-  } else if (mode == DELETE_NODES) {
-    checkDeleteNodeClick(mouseX, mouseY);
-  } else if (mode == SET_LINEZ || mode == SET_CONST || mode == MOVE_LINES) {
-    for (int i = 0; i < lines.size(); i++) {
-      if (lines.get(i).mouseOver()) {
-        lineIndex = i;
-        println("l index " + lineIndex);
-        break;
-      }
-    }
-  } else if (mode == SET_NODES_Z) {
-    checkNodeClick(mouseX, mouseY);
-    //updateLineZs();
-  } else if (mode == CALIBRATION) {
+  if (mode == CALIBRATION) {
     updateLinePositions();
   }
 }
@@ -294,8 +264,8 @@ void setLines() {
       fill(0, 255, 255);
     } else {
       colorMode(HSB);
-      stroke(map(l.zIndex, 0, 9, 0, 255), 255, 255);
-      fill(map(l.zIndex, 0, 9, 0, 255), 255, 255);
+      stroke(map(l.zs, 0, 9, 0, 255), 255, 255);
+      fill(map(l.zs, 0, 9, 0, 255), 255, 255);
     }
     l.display();
   }
@@ -314,11 +284,7 @@ void setConst() {
       colorMode(RGB);
       stroke(0, 255, 255);
       fill(0, 255, 255);
-    } else {
-      colorMode(HSB);
-      stroke(map(l.constellationG, 0, 9, 0, 255), 255, 255);
-      fill(map(l.constellationG, 0, 9, 0, 255), 255, 255);
-    }
+    } 
     l.display();
   }
 }
@@ -337,9 +303,9 @@ void displayLineZDepth() {
 
 void deleteLines(int index) {
   for (int i = lines.size() - 1; i >=0; i--) {
-    if (lines.get(i).findByID(index)) {
-      lines.remove(i);
-    }
+    //if (lines.get(i).findByID(index)) {
+    //  lines.remove(i);
+    //}
   }
 }
 
@@ -358,38 +324,26 @@ void displayBox(int hue, String title) {
 }
 
 void settingFunctions() {
-  displayNodes();
-  displayNodeLabels();
+  //displayNodes();
+  //displayNodeLabels();
 
 
 
-  if (mode == ADD_EDGES) {
-    drawLineToCurrent(mouseX, mouseY);
-    displayBox(0, "ADD EDGES");
-    displayLines(strokeVizWeight, 255);
-  } else if (mode == ADD_NODES) {
-    ellipse(mouseX, mouseY, 20, 20);
-    displayBox(20, "ADD NODES");
-    displayLines(strokeVizWeight, 255);
-  } else if (mode == DELETE_NODES) {
-    displayLines(strokeVizWeight, 255);
-    displayBox(50, "DELETE NODES");
-  } else if (mode == MOVE_NODES || mode == MOVE_LINES) {
-    displayCurrentNode();
+  if (mode == MOVE_LINES) {
+    //displayCurrentNode();
     displayBox(70, "MOVE");
     displayLines(strokeVizWeight, 255);
-  } else if (mode == SET_NODES_Z) {
-    displayLineZDepth();
-    displayBox(100, "SET NODES Z");
-    displayCurrentNode();
-    displayLines(strokeVizWeight, 255);
-  } else if (mode == SET_CONST) {
-    setConst();
-    displayBox(140, "SET CONSTELLATIONS");
-    displayLines(strokeVizWeight, 255);
-  } else if (mode == SET_LINEZ) {
-    displayZIndexes();
-    displayLines(strokeVizWeight, 255);
+    for (Line l : lines) {
+      if (l.mouseOver()) {
+        l.display(color(0, 0, 255));
+        if (mousePressed) {
+          currentLine = l;
+        }
+      }
+    }
+    if (currentLine != null) {
+      currentLine.display(color(255, 0, 0));
+    }
   } else if (mode == CALIBRATION) {
     displayBox(130, "CALIBRATING MAP");
     displayLines(strokeVizWeight, 255);
@@ -428,7 +382,6 @@ void loadShapes() {
   processing.data.JSONObject graphJson;
   graphJson = loadJSONObject("data/shapes/numShapes.json");
   int numShapes = graphJson.getInt("numShapes");
-  //println(numShapes);
 
   shapes = new ArrayList<Shape>();
   for (int i = 0; i < numShapes; i++) {
@@ -457,7 +410,6 @@ void rainbowStrip() {
     lastChecked = millis();
     visualIndex++;
     visualIndex %= 7;
-    println(visualIndex);
     for (Shape s : shapes) {
       if (((MoveableShape) s).zSide == visualIndex) {
         s.c = color(map(((MoveableShape) s).zSide, 0, 7, 0, 255), 255, 255);
