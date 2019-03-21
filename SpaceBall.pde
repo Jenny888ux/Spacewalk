@@ -8,7 +8,7 @@ int delayTest = 0;
 int currentX = 0, currentY = 0, currentZ = 0;
 Line currentLine;
 
-int lightX = 500, lightY = 500, lightZ = -100;
+float lightX = 500, lightY = 500, lightZ = -100;
 ///////////////////////////////////////
 int strokeVizWeight = 3;
 
@@ -64,6 +64,8 @@ color [] zColors;
 float huePosition = 0;
 int counter = 0;
 
+boolean normalDisplay = true;
+
 void setup() {
   fullScreen(P3D);
   //size(800, 600, P3D);
@@ -77,7 +79,7 @@ void setup() {
   initGrid(screen);
   setRects();
 
-
+  balls.add(new Ball(screen.width/2, screen.height/2, -300));
 
   colorMode(HSB, 255);
 
@@ -89,6 +91,7 @@ void setup() {
     loadKeystone();
     loadLines();
   }
+
 }
 
 
@@ -97,36 +100,32 @@ void draw() {
   background(0);
   //translate(width/2, height/2);
 
+  drawName();
+
   if (mode == VISUALIZE) {
     displayLines(strokeVizWeight, 0);
     visualize(screen);
-    
-  }
-  else {
+  } else {
     visualizeSetting(screen);
     settingFunctions();
   }
+  bounceLight();
   
 }
 
-void drawAllLines() {
-  for (int j = 0; j < 6; j++) {
-    for (int i = 0; i < 4; i++) {
-      drawLineTopX(i, j, color(255));
-      drawLineTopZ(i, j, color(255));
+void drawName() {
+  textSize(50);
+  fill(255);
+  stroke(255);
+  text("@jdeboi", width - 300, height - 50, 30);
+}
 
-      drawLineBottomX(i, j, color(255));
-      drawLineBottomZ(i, j, color(255));
-
-      drawLineLeftY(i, j, color(255));
-      drawLineLeftZ(i, j, color(255));
-
-      drawLineRightY(i, j, color(255));
-      drawLineRightZ(i, j, color(255));
-
-      drawLineBackX(i, j, color(255));
-      drawLineBackY(i, j, color(255));
-    }
+void bounceLight() {
+  if (visualMode != V_PULSE_LINE_BACK) {
+    balls.get(0).run();
+    lightX = balls.get(0).position.x;
+    lightY = balls.get(0).position.y;
+    lightZ = -100;
   }
 }
 
@@ -161,6 +160,12 @@ void visualize(PGraphics g) {
   screen.beginDraw();
   screen.background(0);
   screen.pointLight(205, 205, 205, lightX, lightY, lightZ); //-100);
+
+  //  screen.pushMatrix();
+  //  screen.translate(lightX, lightY, lightZ);
+  //  screen.ellipse(0, 0, 40, 40);
+  //  screen.popMatrix();
+
   screen.pushMatrix();
   screen.translate(g.width/2, g.height/2, 170);
   //setRainbowPulse(20);
@@ -179,16 +184,72 @@ void visualize(PGraphics g) {
   renderScreens();
 }
 void changeMode() {
-  if (millis() - lastCheckedMode > 8000) {
-    if (int(random(2)) == 0) visualMode = V_DISPLAY;
-    else visualMode = int(random(15));
-    lastCheckedMode = millis();
+  
+  if (normalDisplay) {
+    if (millis() - lastCheckedMode > 10000) {
+      transitionReady = false;
+      lastCheckedMode = millis();
+      normalDisplay = false;
+      pulseIndex = 0;
+      setSpecialMode();
+      
+    }
+  } else {
+    if (millis() - lastCheckedMode > 10000 && transitionReady) {
+      normalDisplay = true;
+      visualMode = V_DISPLAY;
+      transitionReady = false;
+      lastCheckedMode = millis();
+      
+    }
   }
+}
+
+void setSpecialMode() {
+  int [] greatModes = new int[]{V_PULSE_LINE_BACK, V_TRANSIT, V_CIRCLE_CUBES, V_PULSING_ON_LINE};
+  int [] goodModes = new int[] {V_RANDOM_CUBES, V_PULSING};
+  int [] okayModes = new int[]{V_PULSE_LINE_RIGHT, V_PULSE_COL_ROUND };
+
+
+  int great = 3 * greatModes.length;
+  int good = 2 * goodModes.length;
+  int okay = 1 * okayModes.length;
+  int totes = great + good + okay;
+
+  int bucket = int(random(totes));
+  if (bucket < great) {
+    modeIndex[0]++;
+    if (modeIndex[0] >= greatModes.length) {
+      modeIndex[0] = 0;
+    }
+    visualMode = greatModes[modeIndex[0]];
+  } else if (bucket < great + good) {
+    modeIndex[1]++;
+    if (modeIndex[1] >= goodModes.length) {
+      modeIndex[1] = 0;
+    }
+    visualMode = goodModes[modeIndex[1]];
+  } else {
+    modeIndex[2]++;
+    if (modeIndex[2] >= okayModes.length) {
+      modeIndex[2] = 0;
+    }
+    visualMode = okayModes[modeIndex[2]];
+  }
+  
+}
+
+int getRandomEl(int [] arr) {
+  int r = int(random(arr.length));
+  return arr[r];
 }
 
 //--------------------------------------------------------------
 void keyPressed() {
-  if (key == 's') {
+  if (key == ' ') {
+    println(hex(c1));
+    println(hex(c2));
+  } else if (key == 's') {
     saveShapes();
     saveKeystone();
     saveLines();

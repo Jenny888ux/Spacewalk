@@ -6,7 +6,7 @@ void initGrid(PGraphics g) {
   g.perspective(fov, float(g.width)/float(g.height), cameraZ/20.0, -5000);
 
   numRectZ = 6;
-  zSpacing = 300;
+  zSpacing = int(300*(1/1.4));
   rectW = int(g.width*.75);
   rectH = int(g.height*.75);
   //numLinesY = int(rectH*1.0/zSpacing);

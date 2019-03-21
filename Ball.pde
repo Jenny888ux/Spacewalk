@@ -52,14 +52,14 @@ class Ball {
 
   void checkBoundaries() {
     // check x
-    if (position.x < -rectW/2 || position.x > rectW/2) {
+    if (position.x < screen.width*.25 || position.x > screen.width*.75) {
       velocity.x = -velocity.x;
       acceleration.x = -acceleration.x;
       //wallHit(position);
     }
     
     // check y
-    if (position.y < -rectH/2 || position.y > rectH/2) {
+    if (position.y < screen.height*.25 || position.y > screen.height*.75) {
       velocity.y = -velocity.y;
       acceleration.y = -acceleration.y;
       //wallHit(position);

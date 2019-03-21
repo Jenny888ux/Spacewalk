@@ -1,5 +1,8 @@
 /////////////////////
 // VISUAL MODES
+
+boolean transitionReady = false;
+
 int V_NONE, 
   V_PULSING, 
   V_ROTATE_ANGLE_COUNT, 
@@ -16,6 +19,9 @@ int V_NONE,
   V_SEGMENT_SHIFT, 
   V_FADE, 
   V_DISPLAY, 
+  V_PULSE_COL_ROUND, 
+  V_CIRCLE_CUBES, 
+  V_RANDOM_CUBES,
   V_TRANSIT;
 
 /////////////////////
@@ -38,6 +44,8 @@ int pointDirection = 4;
 int seesawVals[] = {0, 0};
 boolean pulsingForward = false;
 
+int [] modeIndex = {0, 0, 0}; //great, good, okay
+
 void initModes() {
   int temp = -1;
   V_NONE = temp++; 
@@ -56,43 +64,107 @@ void initModes() {
   V_SEGMENT_SHIFT = temp++; 
   V_FADE = temp++;
   V_TRANSIT = temp++;
+  V_PULSE_COL_ROUND = temp++;
+  V_CIRCLE_CUBES = temp++;
+  V_RANDOM_CUBES = temp++;
   V_DISPLAY = temp++;
 }
 void playMode() {
-  visualMode = V_PULSING_ON_LINE;
-  //if (visualMode == V_ROTATE_ANGLE_COUNT) rotateAngleCounter(100, 20);   // could be fixed
-  //else 
+  //visualMode =  V_CIRCLE_CUBES;
+  transitionReady = false;
+  
+  // great
   if (visualMode == V_PULSE_LINE_BACK) pulseLineForBack(600); //pulseLineBack(200); // either do just one ring, or do two rings and laterals in between
-  else if (visualMode == V_PULSE_LINE_RIGHT) pulseLineRight(90, 80); // just do vertical lines or cubes around
-  else if (visualMode == V_PULSE_LINE_LEFT)  pulseLineLeft(90, 80);
-  else if (visualMode == V_PULSE_LINE_UP) pulseLineUp(90, 80);
-  else if (visualMode == V_PULSE_LINE_DOWN) pulseLineDown(90, 80);
-
-  else if (visualMode == V_PULSING) pulsing(3);
-  //else if (visualMode == V_SHOW_ONE) showOne(500);
-  else if (visualMode == V_PULSING_ON_LINE) pulseLinesCenter(1);
-  //else if (visualMode == V_SEGMENT_SHIFT) segmentShift(10);  // transit but now looks bad
   else if (visualMode == V_TRANSIT) transit(30);
-  else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
+  else if (visualMode == V_PULSING_ON_LINE) pulseLinesCenter(1);
+  else if (visualMode ==  V_CIRCLE_CUBES) circleCubes();
+  
+  // good
+  else if (visualMode == V_PULSING) pulsing(2);
+  else if (visualMode == V_RANDOM_CUBES) randomCubes();
+  
+  // okay
+  else if (visualMode == V_PULSE_LINE_RIGHT) pulseLineRight(190, 80);
+  else if (visualMode == V_PULSE_COL_ROUND) pulseColumnAround(300); // let's make this opposite also
+  
+  
+  // standard
+   else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
+  
+  // not working
+  //else if (visualMode == V_ROTATE_ANGLE_COUNT) rotateAngleCounter(200, 20);   // could be fixed
+  //else if (visualMode == V_PULSE_LINE_LEFT)  pulseLineLeft(90, 80);
+  //else if (visualMode == V_PULSE_LINE_UP) pulseLineUp(90, 80);
+  //else if (visualMode == V_PULSE_LINE_DOWN) pulseLineDown(90, 80);
+  
+  
+  
+  
+  //randomCubes();
+  
 }
 
 //////////////////////////////////////////////////////////////////
+
+void updatePulse(int rate, int max) {
+  if (millis() - lastCheckedPulse > rate) {
+    pulseIndex++;
+    if (pulseIndex > max) pulseIndex = 0;
+    lastCheckedPulse = millis();
+  }
+}
+void randomCubes() {
+  transitionReady = true;
+  for (Shape s : shapes) {
+    ((MoveableShape) s).randomLineColor();
+    ((MoveableShape) s).drawShapeCube();
+  }
+}
+
+void pulseColumnAround(int rate) {
+  transitionReady = true;
+  float per = map(constrain(millis() - lastCheckedPulse, 0, rate), 0, rate, 0, 1);
+  float angle = int(map(pulseIndex+per, 0, 11, 0, 2*PI)) - PI/2;
+  //println(per + " " + angle);
+  int r = 150;
+  lightX = r*cos(angle) + screen.width*1.0/2;
+  lightY = r*sin(angle) + screen.height*1.0/2;
+  if (millis() - lastCheckedPulse > rate) {
+    pulseIndex++;
+    if (pulseIndex > 11 ) {
+      pulseIndex = 0;
+    }
+    lastCheckedPulse = millis();
+  }
+  drawZColumn(pulseIndex-2, color(55));
+  drawZColumn(pulseIndex-1, color(155));
+  drawZColumn(pulseIndex, color(255));
+  //drawZColumn((pulseIndex+3)%12, color(255));
+  drawZColumn(pulseIndex+4, color(55));
+  drawZColumn(pulseIndex+5, color(155));
+  drawZColumn((pulseIndex+6)%12, color(255));
+}
 void handLight(float x, float y, int rad, color c) {
   for (int i = 0; i < lines.size(); i++) {
     lines.get(i).handLight(x, y, rad, c);
   }
 }
 void transit(int rate) {
-
+  transitionReady = false;
   if (millis() - lastCheckedPulse > rate) {
     pulseIndex++;
-    if (pulseIndex > 100) pulseIndex = 0;
+    if (pulseIndex > 100) {
+      pulseIndex = 0;
+      transitionReady = true;
+    }
     lastCheckedPulse = millis();
   }
   for (int i = 0; i < lines.size(); i++) {
     lines.get(i).displaySegment(pulseIndex / 100.0, .2);
   }
 }
+
+
 
 void transitHand(float per, color c) {
   stroke(c);
@@ -140,6 +212,8 @@ void rotateAngle(int rate, int angleGap) {
 
 
 void displayLines(int sw, color c) {
+  //if (c == 0) transitionReady = false;
+  //else transitionReady = true;
   strokeWeight(sw);
   for (int i = 0; i < lines.size(); i++) {
     stroke(c);
@@ -240,15 +314,36 @@ void randomLines(int rate) {
   }
 }
 
+void circleCubes() {
+  transitionReady = false;
+  if (millis() - lastCheckedPulse > 100) {
+    pulseIndex++;
+    if (pulseIndex > 5*3*4+4*4) {
+      pulseIndex = 0;
+      transitionReady = true;
+      //println("yes");
+    }
+    lastCheckedPulse = millis();
+  }
+  //displayLines(0);
+  for (int i = 0; i < pulseIndex; i++) {
+    drawCube(i, color(255));
+  }
+  //if (transitionReady) println("dunno");
+}
+
 
 void pulseLinesCenter(int rate) {
+  transitionReady = false;
   pulseIndex += pointDirection * rate;
   if (pulseIndex > 100) {
     pulseIndex = 100;
     pointDirection = -1;
+    transitionReady = true;
   } else if (pulseIndex < 0) {
     pulseIndex = 0;
     pointDirection = 1;
+    transitionReady = true;
   }
   float per = pulseIndex / 100.0;
   for (int i = 0; i < lines.size(); i++) {
@@ -258,16 +353,29 @@ void pulseLinesCenter(int rate) {
 
 
 void pulseLineRight(int rate, int bandSize) {
+  transitionReady = true;
   if (millis() - lastCheckedPulse > rate) {
-    pulseIndex+= bandSize;
-    if (pulseIndex > width) {
-      pulseIndex = -bandSize;
+    pulseIndex++;
+    if (pulseIndex > 20) {
+      pulseIndex = 0;
     }
     lastCheckedPulse = millis();
   }
-  for (int i = 0; i < lines.size(); i++) {
-    lines.get(i).displayBandX(pulseIndex, pulseIndex+bandSize);
+  if (pulseIndex < 5) {
+    drawCubeLeft(0, pulseIndex, color(255));
+    drawCubeLeft(1, pulseIndex, color(255));
+    drawCubeLeft(2, pulseIndex, color(255));
+  } else if (pulseIndex < 8) {
+    drawCubeBack(pulseIndex-5, 0, color(255));
+    drawCubeBack(pulseIndex-5, 1, color(255));
+    drawCubeBack(pulseIndex-5, 2, color(255));
+  } else if (pulseIndex < 14) {
+    drawCubeRight(0, 3-(pulseIndex-8), color(255));
+    drawCubeRight(1, 3-(pulseIndex-8), color(255));
+    drawCubeRight(2, 3-(pulseIndex-8), color(255));
   }
+  //drawTop(color(255));
+  // drawBottom(color(255));
 }
 
 void pulseLineLeft(int rate, int bandSize) {
@@ -311,6 +419,7 @@ void pulseLineDown(int rate, int bandSize) {
 }
 
 void pulseLineBack(int rate) {
+  transitionReady = true;
   if (millis() - lastCheckedPulse > rate) {
     pulseIndex++;
     if (pulseIndex > 8) {
@@ -339,9 +448,17 @@ void pulseLineForward(int rate) {
 }
 
 void pulseLineForBack(int rate) {
-  //lightY = 100;
-  float per = map(constrain(lastCheckedPulse, 0, rate), 0, rate, 0, 1);
-  lightZ = int(map(pulseIndex+per, 0, 5, -100, -1000));
+  transitionReady = true;
+  lightX = screen.width/2;
+  lightY = screen.height/2;
+  float per = map(constrain(millis() - lastCheckedPulse, 0, rate), 0, rate, 0, 1);
+  //if (pulsingForward) {
+  lightZ = int(map(pulseIndex, 0, 5, -100, -1000)); //-per
+  //}
+  //else {
+  //  lightZ = int(map(pulseIndex+per, 0, 5, -100, -1000));
+  //}
+
   if (millis() - lastCheckedPulse > rate) {
     lastCheckedPulse = millis();
     if (pulsingForward) {
@@ -374,10 +491,14 @@ void showOne(int rate) {
 }
 
 void pulsing(int rate) {
+  transitionReady = false;
   pulseIndex += rate;
   pulseIndex %= 510;
   int b = pulseIndex;
-  if (pulseIndex > 255) b = int(map(pulseIndex, 255, 510, 255, 0));
+  if (pulseIndex > 255) {
+    b = int(map(pulseIndex, 255, 510, 255, 0));
+    transitionReady = true;
+  }
   for (int i = 0; i < lines.size(); i++) {
     lines.get(i).display(b);
   }

@@ -2,7 +2,7 @@ class MoveableShape extends Shape {
 
   int side, xSide, ySide, zSide;
   float x, y, z, w, h, rx, ry, rz;
-  Line l1, l2;
+  float lineC;
 
   MoveableShape(int i, int side, int xSide, int ySide, int zSide, float x, float y, float z, float w, float h, float rx, float ry, float rz) {
     super(i);
@@ -17,6 +17,8 @@ class MoveableShape extends Shape {
     this.rx = rx;
     this.ry = ry;
     this.rz = rz;
+    this.lineC = 0;
+
 
     addPoint(new PVector(-w/2, -h/2, 0));
     addPoint(new PVector(w/2, -h/2, 0));
@@ -24,6 +26,33 @@ class MoveableShape extends Shape {
     addPoint(new PVector(-w/2, h/2, 0));
   }
 
+  void randomLineColor() {
+    if (this.lineC == 0) {
+      if (int(random(400)) == 0) {
+        this.lineC = 255;
+      }
+    } else {
+      this.lineC = lineC - 2.5;
+      if (this.lineC < 0) {
+        this.lineC = 0;
+      }
+    }
+  }
+
+
+  void drawShapeCube() {
+    //stroke(this.lineC);
+    //this.lineC = color(255);
+    if (lineC > 1) {
+      if (side == TOP_S || side == BOTTOM_S) {
+        drawCube(side, xSide, zSide, color(lineC));
+      } else if (side == LEFT_S || side == RIGHT_S) {
+        drawCube(side, ySide, zSide, color(lineC));
+      } else {
+        drawCube(side, xSide, ySide, color(lineC));
+      }
+    }
+  }
 
 
   void initShapeLines() {
@@ -102,15 +131,15 @@ class MoveableShape extends Shape {
     PVector point1 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p1).x, pts.get(p1).y)), int(screen.screenY(pts.get(p1).x, pts.get(p1).y)));
     PVector point2 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p2).x, pts.get(p2).y)), int(screen.screenY(pts.get(p2).x, pts.get(p2).y)));
     lines.add(new Line(point1.x, point1.y, point2.x, point2.y, o1, side, xSide, ySide, zSide));
-    l1 = lines.get(lines.size()-1);
-    
-    
-    
+    //l1 = lines.get(lines.size()-1);
+
+
+
     PVector point3 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p3).x, pts.get(p3).y)), int(screen.screenY(pts.get(p3).x, pts.get(p3).y)));
     PVector point4 = ks.getSurface(0).getTransformedCursor(int(screen.screenX(pts.get(p4).x, pts.get(p4).y)), int(screen.screenY(pts.get(p4).x, pts.get(p4).y)));
     lines.add(new Line(point3.x, point3.y, point4.x, point4.y, o2, side, xSide, ySide, zSide) );
-    l2 = lines.get(lines.size()-1);
-   
+    //l2 = lines.get(lines.size()-1);
+
     if (zSide == 0) {
       if (side == TOP_S || side == BOTTOM_S) {
 
@@ -127,14 +156,13 @@ class MoveableShape extends Shape {
       }
       lastLines.add(new Line(screen.screenX(pts.get(p1).x, pts.get(p1).y), screen.screenY(pts.get(p1).x, pts.get(p1).y), 
         screen.screenX(pts.get(p2).x, pts.get(p2).y), screen.screenY(pts.get(p2).x, pts.get(p2).y), o1, side, xSide, ySide, zSide-1) );
-      
     }
 
     screen.popMatrix();
     popMatrix();
   }
 
-  
+
 
   void displayPerfect(int sw, PGraphics g) {
     g.pushMatrix();

@@ -13,6 +13,46 @@ ArrayList<Line> lastLines = new ArrayList<Line>();
 //  }
 //}
 
+// not working
+void drawLineSegBottomZ(float per, color c) {
+  float zD = per * 5;
+  int full = int(zD);
+  for (int i = full; i >= 0; i++) {
+    drawLineBottomZ(0, i, c);
+  }
+  Line l = getLine(BOTTOM_S, Z_ORIENT, 0, full+1);
+  l.displaySegment(0, zD-full);
+}
+
+
+void drawCube(int index, color c) {
+  // rings clockwise from bottom left
+  if (index < 5*3*4) {
+    int s = index % 12;
+    int z = index/12;
+    if (s < 3) {
+      drawCubeLeft(s, z, c);
+    }
+    else if (s < 6) {
+      drawCubeTop(s-3, z, c);
+    }
+    else if (s < 9) {
+      int v = s - 6;
+      drawCubeRight(2-v, z, c);
+    }
+    else {
+      int v = s - 9;
+      drawCubeBottom(2-v, z, c);
+    }
+    
+  }
+  else {
+    int x = (index-5*3*4)/4;
+    int y = (index-5*3*4)%4;
+    drawCubeBack(x, y, c);
+  }
+}
+  
 void drawCubeRing(int zCircle, color c) {
   drawCircle(zCircle, c);
   drawCircle(zCircle+1, c);
@@ -52,6 +92,96 @@ void drawCubeRight(int pos, int zCircle, color c) {
   drawLineRightZ(pos+1, zCircle, c);
 }
 
+void drawCubeBack(int x, int y, color c) {
+  drawLineBackX(x, y, c);
+  drawLineBackX(x, y+1, c);
+  drawLineBackY(x, y, c);
+  drawLineBackY(x+1, y, c);
+}
+
+void drawTop(color c) {
+  for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineTopX(i, j, c);
+      drawLineTopZ(i, j, c);
+    }
+  }
+}
+
+void drawBottom(color c) {
+  for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineBottomX(i, j, c);
+      drawLineBottomZ(i, j, c);
+    }
+  }
+}
+
+void drawBack(color c) {
+  for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineBackX(i, j, c);
+      drawLineBackY(i, j, c);
+    }
+  }
+}
+
+void drawZColumn(int z, color c) {
+  // clockwise from top
+  if (z < 3) {
+    for (int i = 0; i < 6; i++) {
+      drawCubeTop(z, i, c);
+    }
+  }
+  else if (z < 6) {
+    for (int i = 0; i < 6; i++) {
+      drawCubeRight(2-(z-3), i, c);
+    }
+  }
+  else if (z < 9) {
+    for (int i = 0; i < 6; i++) {
+      drawCubeBottom(2-(z-6), i, c);
+    }
+  }
+  else if (z < 12) {
+    for (int i = 0; i < 6; i++) {
+      drawCubeLeft((z-9), i, c);
+    }
+  }
+}
+
+void drawZLines(color c) {
+  for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineTopZ(i, j, c);
+      drawLineBottomZ(i, j, c);
+      drawLineLeftZ(i, j, color(255));
+      drawLineRightZ(i, j, color(255));
+    }
+  }
+}
+
+void drawAllLines() {
+  for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 4; i++) {
+      drawLineTopX(i, j, color(255));
+      drawLineTopZ(i, j, color(255));
+
+      drawLineBottomX(i, j, color(255));
+      drawLineBottomZ(i, j, color(255));
+
+      drawLineLeftY(i, j, color(255));
+      drawLineLeftZ(i, j, color(255));
+
+      drawLineRightY(i, j, color(255));
+      drawLineRightZ(i, j, color(255));
+
+      drawLineBackX(i, j, color(255));
+      drawLineBackY(i, j, color(255));
+    }
+  }
+}
+
 
 void drawCircle(int zCircle, color c) {
   for (int i = 0; i < 4; i++) {
@@ -66,26 +196,12 @@ void drawCircle(int zCircle, color c) {
 
 
 
-void drawCube(int side, int zCircle, int position) {
-  for (Line l : lines) {
-    if (l.side == side) {
-
-      if (side == TOP_S) {
-        if (zCircle == l.zs && position == l.xs ) {
-          l.display(255);
-        }
-      } else if ( side == BOTTOM_S) {
-      } else if (side == RIGHT_S || side == LEFT_S) {
-        if (position == l.ys && zCircle == l.zs) {
-          l.display(255);
-        }
-      } else {
-        if (position == l.xs && zCircle == l.ys) {
-          l.display(255);
-        }
-      }
-    }
-  }
+void drawCube(int side,  int position, int zCircle, color c) {
+  if (side == TOP_S) drawCubeTop(position, zCircle, c);
+  else if (side == BOTTOM_S) drawCubeBottom(position, zCircle, c);
+  else if (side == LEFT_S) drawCubeLeft(position, zCircle, c);
+  else if (side == RIGHT_S) drawCubeRight(position, zCircle, c);
+  else if (side == BACK_S) drawCubeBack(position, zCircle, c);
 }
 
 void updateLinePositions() {
