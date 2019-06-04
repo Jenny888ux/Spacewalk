@@ -1,11 +1,8 @@
-import deadpixel.keystone.*;  // to modify keystone lib and then make a jar file: jar cvf keystone.jar .
+import keystoneMap.*;
 
-float scaleFactor = 1.1;
-int screenW = int(1200*scaleFactor);
-int screenH = int(800*scaleFactor);
-
-PVector test1 = new PVector(0, 0);
-PVector test2 = new PVector(100, 100);
+float aspectRatio = 3.0/2.0; // width to height
+float scaleFactor = 0.9;
+int screenW, screenH;
 
 Keystone ks;
 int keystoneNum = 0;
@@ -14,12 +11,24 @@ PGraphics screen;
 boolean isCalibrating = false;
 
 void initScreens() {
+  float w, h;
+  // check to see which dimension is the limiting dimension
+  if (aspectRatio < (width*1.0/height)) {
+    h = height*scaleFactor;
+    w = aspectRatio * h;
+  }
+  else {
+    w = width*scaleFactor;
+    h = 1/aspectRatio * w;
+  }
+  println(w, h, width, height);
+  int screenW = int(w);
+  int screenH = int(h);
+  
   ks = new Keystone(this);
 
-  surface = ks.createCornerPinSurface(screenW, screenH, 20);
+  surface = ks.createQuadPinSurface(screenW, screenH, 20);
   screen = createGraphics(screenW, screenH, P3D);
-
- 
 }
 
 
@@ -27,7 +36,7 @@ void saveKeystone() {
   ks.save("data/keystone/keystone.xml");
   //PVector t = ks.getSurface(0).getTransformedCursor(int(test1.x),int(test1.y));
   //PVector t2 = ks.getSurface(0).TL;
-  
+
   //println(ks.getSurface(0).mesh[0].x + " " + mouseX + " " + mouseY);
   //println(t );
 }
@@ -43,5 +52,5 @@ void renderScreens() {
 void toggleCalibration() {
   isCalibrating = !isCalibrating;
   if (isCalibrating) ks.startCalibration();
-    else ks.stopCalibration();
+  else ks.stopCalibration();
 }

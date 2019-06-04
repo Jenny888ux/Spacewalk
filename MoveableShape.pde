@@ -1,3 +1,5 @@
+boolean wasAutomated = false;
+
 class MoveableShape extends Shape {
 
   int side, xSide, ySide, zSide;
@@ -24,6 +26,7 @@ class MoveableShape extends Shape {
     addPoint(new PVector(w/2, -h/2, 0));
     addPoint(new PVector(w/2, h/2, 0));
     addPoint(new PVector(-w/2, h/2, 0));
+    
   }
 
   void randomLineColor() {
@@ -60,10 +63,7 @@ class MoveableShape extends Shape {
 
     screen.pushMatrix();
 
-    //screen.translate(screen.width/2, screen.height/2, -525);
-
-    screen.translate(screen.width/2, screen.height/2, 170);
-    screen.scale(screenW/1200);
+    screen.translate(screen.width/2, screen.height/2, 0);
     screen.rotateX(rx);
     screen.rotateY(ry);
     screen.rotateZ(rz);
@@ -170,6 +170,7 @@ class MoveableShape extends Shape {
     g.rotateY(ry);
     g.rotateZ(rz);
     g.translate(x, y, z);
+    g.fill(map(zSide, 0, 4, 0, 255), 0, map(zSide, 0, 4, 255, 0));
     super.displayPerfect(sw, g);
 
     //stroke(255);

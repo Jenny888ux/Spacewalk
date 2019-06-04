@@ -14,14 +14,7 @@ int strokeVizWeight = 3;
 
 // MODES
 int VISUALIZE = 0;
-//int ADD_NODES = 1;
-//int ADD_EDGES = 2;
-//int MOVE_NODES = 3;
 int MOVE_LINES = 4;
-//int SET_LINEZ = 5;
-//int SET_CONST = 6;
-//int SET_NODES_Z = 7;
-//int DELETE_NODES = 8;
 int MOVEABLE_LINES = 9;
 int CALIBRATION = 10;
 int SHOW_PERFECT = 11;
@@ -72,7 +65,6 @@ void setup() {
 
   lines = new ArrayList<Line>();
   shapes = new ArrayList<Shape>();
-  //nodes = new ArrayList<Node>();
 
   initScreens();
   initModes();
@@ -90,8 +82,10 @@ void setup() {
   if (LOADING) {
     loadKeystone();
     loadLines();
-  }
+  } 
 
+  printLineLength(5*12);
+  printLineLength(10*12);
 }
 
 
@@ -110,7 +104,11 @@ void draw() {
     settingFunctions();
   }
   bounceLight();
-  
+
+  if (!wasAutomated && !LOADING) {
+    automateLinesGeneration();
+    wasAutomated = true;
+  }
 }
 
 void drawName() {
@@ -135,13 +133,13 @@ void visualizeSetting(PGraphics g) {
   screen.background(0);
   screen.pointLight(205, 205, 205, screen.width/2, screen.height/2, -100);
   screen.pushMatrix();
-  screen.translate(screen.width/2, screen.height/2, 170);
+  screen.translate(screen.width/2, screen.height/2, 0);
   setGradientZs();
   if (mode != SHOW_PERFECT) {
     displayShapes(screen);
-    //displayLines(strokeVizWeight, 255);
-  } 
-  //else displayPerfectLines(5, screen);
+  } else {
+    displayPerfectLines(5, screen);
+  }
 
   screen.popMatrix();
 
@@ -167,7 +165,7 @@ void visualize(PGraphics g) {
   //  screen.popMatrix();
 
   screen.pushMatrix();
-  screen.translate(g.width/2, g.height/2, 170);
+  screen.translate(g.width/2, g.height/2, 0);
   //setRainbowPulse(20);
   setGradientZs();
   displayShapes(screen);
@@ -184,7 +182,7 @@ void visualize(PGraphics g) {
   renderScreens();
 }
 void changeMode() {
-  
+
   if (normalDisplay) {
     if (millis() - lastCheckedMode > 10000) {
       transitionReady = false;
@@ -192,7 +190,6 @@ void changeMode() {
       normalDisplay = false;
       pulseIndex = 0;
       setSpecialMode();
-      
     }
   } else {
     if (millis() - lastCheckedMode > 10000 && transitionReady) {
@@ -200,7 +197,6 @@ void changeMode() {
       visualMode = V_DISPLAY;
       transitionReady = false;
       lastCheckedMode = millis();
-      
     }
   }
 }
@@ -236,7 +232,6 @@ void setSpecialMode() {
     }
     visualMode = okayModes[modeIndex[2]];
   }
-  
 }
 
 int getRandomEl(int [] arr) {
@@ -246,6 +241,7 @@ int getRandomEl(int [] arr) {
 
 //--------------------------------------------------------------
 void keyPressed() {
+  if (key != 'v') cursor();
   if (key == ' ') {
     println(hex(c1));
     println(hex(c2));
@@ -256,24 +252,19 @@ void keyPressed() {
   } else if (key == 'r') {
     loadLines();
     loadKeystone();
-  }
-  //else if (key == 'a') mode = ADD_NODES;
-  else if (key == 'e') {
-    //mode = ADD_EDGES;
-    automateLinesGeneration();
+  } else if (key == 'e') {
+    if (!wasAutomated) {
+      automateLinesGeneration();
+      wasAutomated = true;
+    } else updateLinePositions();
   } else if (key == 'm') mode = MOVE_LINES;
   else if (key == 't') mode = MOVEABLE_LINES;
-  //else if (key == 'n') mode = MOVE_NODES;
-  //else if (key == 'd') mode = DELETE_NODES;
   //else if (key == 'z') mode = SET_LINEZ;
   else if (key == 'p') mode = SHOW_PERFECT;
   else if (key == 'c') {
     mode = CALIBRATION;
     toggleCalibration();
-  } 
-  //else if (key == 'g') mode = SET_CONST;
-  else if (key == 'v') mode = VISUALIZE;
-  else if (key == 'x') printLineLength();
+  } else if (key == 'v') mode = VISUALIZE;
   else if (mode == MOVE_LINES) {
     if (currentLine != null) {
       if (keyCode == UP) currentLine.moveP1(0, -1);
@@ -308,6 +299,12 @@ void mousePressed() {
 
 //--------------------------------------------------------------
 void mouseReleased() {
+  if (mode == CALIBRATION) {
+    updateLinePositions();
+  }
+}
+
+void mouseDragged() {
   if (mode == CALIBRATION) {
     updateLinePositions();
   }
@@ -350,12 +347,6 @@ void setConst() {
   }
 }
 
-//void updateLineZs() {
-//  for (int i = 0; i < lines.size(); i++) {
-//    lines.get(i).updateZ();
-//  }
-//}
-
 void displayLineZDepth() {
   for (Line line : lines) {
     line.displayZDepth();
@@ -385,13 +376,7 @@ void displayBox(int hue, String title) {
 }
 
 void settingFunctions() {
-  //displayNodes();
-  //displayNodeLabels();
-
-
-
   if (mode == MOVE_LINES) {
-    //displayCurrentNode();
     displayBox(70, "MOVE");
     displayLines(strokeVizWeight, 255);
     for (Line l : lines) {

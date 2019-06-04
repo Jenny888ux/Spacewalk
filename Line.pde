@@ -1,17 +1,7 @@
-int currentNodeIndex = -1;
-//ArrayList<Node> nodes;
+
 ArrayList<Line> lastLines = new ArrayList<Line>();
 
 
-//void setArrayLines() {
-//  for (int x = 0; x < numLinesX; x++) {
-//    for (int z = 0; z < numRectZ; z++) {
-//      if (x == 0) {
-//        topXLines[0][z] =
-//      }
-//    }
-//  }
-//}
 
 // not working
 void drawLineSegBottomZ(float per, color c) {
@@ -229,9 +219,9 @@ I want to be able to query by row, column, and z depth
 //  nodes.add(new Node(nodes.size() + "", mx, my));
 //}
 
-boolean hasCurrentNode() {
-  return (currentNodeIndex > -1);
-}
+//boolean hasCurrentNode() {
+//  return (currentNodeIndex > -1);
+//}
 
 //void moveCurrentNode(int dx, int dy) {
 //  nodes.get(currentNodeIndex).move(dx, dy);
@@ -694,13 +684,14 @@ class Line {
 }
 
 
-void printLineLength() {
-  float len = 0;
+void printLineLength(int inchesWide) {
+  float len = 6;
   for (Line l : lines) {
     len += dist(l.p1.x, l.p1.y, l.p2.x, l.p2.y);
   }
-  println("pixels: " + len);
-  println("inches: " + len*144/width);
+  println(int(len) + "px", int(len*inchesWide/width) + "in", nf(len*inchesWide/width/12.0, 0, 2) +"ft");
+  println("---------------");
+  
 }
 
 void drawLine(int side, int orient, int position, int zCircle, color c) {
