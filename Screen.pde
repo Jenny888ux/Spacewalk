@@ -46,7 +46,10 @@ void loadKeystone() {
 }
 
 void renderScreens() {
+  pushMatrix();
+  translate(0, 0, -1);
   surface.render(screen);
+  popMatrix();
 }
 
 void toggleCalibration() {

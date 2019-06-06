@@ -21,7 +21,7 @@ int V_NONE,
   V_DISPLAY, 
   V_PULSE_COL_ROUND, 
   V_CIRCLE_CUBES, 
-  V_RANDOM_CUBES,
+  V_RANDOM_CUBES, 
   V_TRANSIT;
 
 /////////////////////
@@ -72,36 +72,38 @@ void initModes() {
 void playMode() {
   //visualMode =  V_CIRCLE_CUBES;
   transitionReady = false;
-  
+  stroke(255);
+  fill(255);
+
   // great
   if (visualMode == V_PULSE_LINE_BACK) pulseLineForBack(600); //pulseLineBack(200); // either do just one ring, or do two rings and laterals in between
   else if (visualMode == V_TRANSIT) transit(30);
   else if (visualMode == V_PULSING_ON_LINE) pulseLinesCenter(1);
   else if (visualMode ==  V_CIRCLE_CUBES) circleCubes();
-  
+
   // good
   else if (visualMode == V_PULSING) pulsing(2);
   else if (visualMode == V_RANDOM_CUBES) randomCubes();
-  
+
   // okay
   else if (visualMode == V_PULSE_LINE_RIGHT) pulseLineRight(190, 80);
   else if (visualMode == V_PULSE_COL_ROUND) pulseColumnAround(300); // let's make this opposite also
-  
-  
+
+
   // standard
-   else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
-  
+  else if (visualMode == V_DISPLAY) displayLines(strokeVizWeight, 255);
+  //else if (visualMode == V_DISPLAY) displayQuad();
+
   // not working
   //else if (visualMode == V_ROTATE_ANGLE_COUNT) rotateAngleCounter(200, 20);   // could be fixed
   //else if (visualMode == V_PULSE_LINE_LEFT)  pulseLineLeft(90, 80);
   //else if (visualMode == V_PULSE_LINE_UP) pulseLineUp(90, 80);
   //else if (visualMode == V_PULSE_LINE_DOWN) pulseLineDown(90, 80);
-  
-  
-  
-  
+
+
+
+
   //randomCubes();
-  
 }
 
 //////////////////////////////////////////////////////////////////
@@ -218,7 +220,7 @@ void displayLines(int sw, color c) {
   for (int i = 0; i < lines.size(); i++) {
     stroke(c);
     fill(c);
-    lines.get(i).display(c);
+    lines.get(i).display();
   }
 }
 

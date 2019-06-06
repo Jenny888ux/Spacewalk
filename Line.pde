@@ -1,7 +1,17 @@
 
 ArrayList<Line> lastLines = new ArrayList<Line>();
 
+void displayQuad() {
+  for (Line l : lines) {
+    l.displayQuad();
+  }
+}
 
+void displayQuadOff() {
+  for (Line l : lines) {
+    l.displayQuadOff();
+  }
+}
 
 // not working
 void drawLineSegBottomZ(float per, color c) {
@@ -22,27 +32,22 @@ void drawCube(int index, color c) {
     int z = index/12;
     if (s < 3) {
       drawCubeLeft(s, z, c);
-    }
-    else if (s < 6) {
+    } else if (s < 6) {
       drawCubeTop(s-3, z, c);
-    }
-    else if (s < 9) {
+    } else if (s < 9) {
       int v = s - 6;
       drawCubeRight(2-v, z, c);
-    }
-    else {
+    } else {
       int v = s - 9;
       drawCubeBottom(2-v, z, c);
     }
-    
-  }
-  else {
+  } else {
     int x = (index-5*3*4)/4;
     int y = (index-5*3*4)%4;
     drawCubeBack(x, y, c);
   }
 }
-  
+
 void drawCubeRing(int zCircle, color c) {
   drawCircle(zCircle, c);
   drawCircle(zCircle+1, c);
@@ -122,18 +127,15 @@ void drawZColumn(int z, color c) {
     for (int i = 0; i < 6; i++) {
       drawCubeTop(z, i, c);
     }
-  }
-  else if (z < 6) {
+  } else if (z < 6) {
     for (int i = 0; i < 6; i++) {
       drawCubeRight(2-(z-3), i, c);
     }
-  }
-  else if (z < 9) {
+  } else if (z < 9) {
     for (int i = 0; i < 6; i++) {
       drawCubeBottom(2-(z-6), i, c);
     }
-  }
-  else if (z < 12) {
+  } else if (z < 12) {
     for (int i = 0; i < 6; i++) {
       drawCubeLeft((z-9), i, c);
     }
@@ -186,7 +188,7 @@ void drawCircle(int zCircle, color c) {
 
 
 
-void drawCube(int side,  int position, int zCircle, color c) {
+void drawCube(int side, int position, int zCircle, color c) {
   if (side == TOP_S) drawCubeTop(position, zCircle, c);
   else if (side == BOTTOM_S) drawCubeBottom(position, zCircle, c);
   else if (side == LEFT_S) drawCubeLeft(position, zCircle, c);
@@ -421,8 +423,62 @@ class Line {
     display();
   }
 
+
   void display() {
     line(p1.x, p1.y, p2.x, p2.y);
+  }
+
+  void displayQuadOff() {
+    pushMatrix();
+    float len = dist(p1.x, p1.y, p2.x, p2.y);
+    float ang = atan2(this.p1.y - this.p2.y, this.p1.x - this.p2.x);
+    translate(p1.x, p1.y);
+    rotateZ(ang+PI/2);
+    noStroke();
+    float sw = strokeVizWeight;
+    beginShape();
+
+
+    fill(0);
+    vertex(-sw/2, 0);
+    vertex(sw/2, 0);
+    vertex(sw/2, len);
+
+    vertex(-sw/2, len);
+    endShape();
+    popMatrix();
+  }
+
+  void displayQuad() {
+    pushMatrix();
+    float len = dist(p1.x, p1.y, p2.x, p2.y);
+    float ang = atan2(this.p1.y - this.p2.y, this.p1.x - this.p2.x);
+    translate(p1.x, p1.y);
+    rotateZ(ang+PI/2);
+    noStroke();
+    float sw = strokeVizWeight;
+    //if (!( orient == Y_ORIENT )) {
+      beginShape();
+
+
+      fill(255);
+      if (side != BACK_S) {
+        if (side == RIGHT_S) fill(map(zs+1, 0, numRectZ, 255, 50));
+        else fill(map(zs, 0, numRectZ, 255, 50));
+      }
+      vertex(-sw/2, 0);
+      vertex(sw/2, 0);
+      if (orient == Z_ORIENT && side != BACK_S) {
+        if (side == RIGHT_S) fill(map(zs, 0, numRectZ, 255, 50));
+        else fill(map(zs+1, 0, numRectZ, 255, 50));
+      }
+      vertex(sw/2, len);
+
+      vertex(-sw/2, len);
+      endShape();
+    //}
+    popMatrix();
+    //stroke(255);
   }
 
   void displayCenterPulse(float per) {
@@ -691,7 +747,6 @@ void printLineLength(int inchesWide) {
   }
   println(int(len) + "px", int(len*inchesWide/width) + "in", nf(len*inchesWide/width/12.0, 0, 2) +"ft");
   println("---------------");
-  
 }
 
 void drawLine(int side, int orient, int position, int zCircle, color c) {
@@ -911,8 +966,6 @@ Line getLine(int side, int orient, int position, int zCircle) {
       index = start +  ((zCircle) *(numLinesY-1) + 2-(position-1))*2 + 1;
       return lines.get(index);
     }
-    // y +1
-    // y minus one for zcircle
   } else if (side == RIGHT_S) {
     start = (numLinesX+1) * (numRectZ)*3;
     if (orient == Y_ORIENT) {
@@ -925,7 +978,6 @@ Line getLine(int side, int orient, int position, int zCircle) {
       if (position == 3) {
         return getLine(TOP_S, Z_ORIENT, 3, zCircle);
       }
-      //index = start + ((zCircle) *3 + 2-position)*2 +1; 
       index = start +  ((zCircle) * (numLinesX-1) +(2-position))*2+1;
       return lines.get(index);
     }
@@ -933,7 +985,12 @@ Line getLine(int side, int orient, int position, int zCircle) {
     start = (numLinesX+1) * (numRectZ)*4;
     if (orient == Y_ORIENT) {
       if (position == 0) {
-        return getLine(LEFT_S, Y_ORIENT, 2-zCircle, 5);
+        // ?
+        return getLine(LEFT_S, Y_ORIENT, zCircle, 5);
+        
+      }
+      else if (position == 3) {
+        return getLine(RIGHT_S, Y_ORIENT, zCircle, 5);
       }
       index = start +  ((2-zCircle) + (numLinesY-1) *(position-1))*2;
       return lines.get(index);
@@ -941,7 +998,9 @@ Line getLine(int side, int orient, int position, int zCircle) {
       if (zCircle == 3) {
         return getLine(TOP_S, X_ORIENT, position, 5);
       }
+      else if (zCircle == 0) return getLine(BOTTOM_S, X_ORIENT, position, 5);
       index = start +  ((2-zCircle) + (numLinesY-1) *(position))*2+1;
+      //index = start +  ((2-zCircle) + (2) *(position))*2+1;
       return lines.get(index);
     }
   }

@@ -92,12 +92,12 @@ void setup() {
 //--------------------------------------------------------------
 void draw() {
   background(0);
-  //translate(width/2, height/2);
 
-  drawName();
+  //drawName();
 
   if (mode == VISUALIZE) {
     displayLines(strokeVizWeight, 0);
+    //displayQuadOff();
     visualize(screen);
   } else {
     visualizeSetting(screen);
@@ -153,16 +153,12 @@ void visualizeSetting(PGraphics g) {
 }
 
 void visualize(PGraphics g) {
-
   noCursor();
+  
+  
   screen.beginDraw();
   screen.background(0);
   screen.pointLight(205, 205, 205, lightX, lightY, lightZ); //-100);
-
-  //  screen.pushMatrix();
-  //  screen.translate(lightX, lightY, lightZ);
-  //  screen.ellipse(0, 0, 40, 40);
-  //  screen.popMatrix();
 
   screen.pushMatrix();
   screen.translate(g.width/2, g.height/2, 0);
@@ -174,12 +170,20 @@ void visualize(PGraphics g) {
   screen.stroke(255);
   screen.fill(255);
   screen.strokeWeight(strokeVizWeight);
-  strokeWeight(strokeVizWeight);
-  changeMode();
-  playMode();
+  
+  
+  
   screen.endDraw();
 
+
+
   renderScreens();
+  changeMode();
+  //playMode();
+  circleCubes();
+  //drawCubeBack(1, 0, color(255));
+  //strokeWeight(strokeVizWeight);
+  
 }
 void changeMode() {
 
@@ -331,22 +335,6 @@ void setLines() {
 
 
 
-void setConst() {
-  background(50);
-  for (int i = 0; i < lines.size(); i++) {
-    Line l = lines.get(i);
-    if (l.mouseOver()) {
-      stroke(255);
-      fill(255);
-    } else if (i == lineIndex) {
-      colorMode(RGB);
-      stroke(0, 255, 255);
-      fill(0, 255, 255);
-    } 
-    l.display();
-  }
-}
-
 void displayLineZDepth() {
   for (Line line : lines) {
     line.displayZDepth();
@@ -378,7 +366,8 @@ void displayBox(int hue, String title) {
 void settingFunctions() {
   if (mode == MOVE_LINES) {
     displayBox(70, "MOVE");
-    displayLines(strokeVizWeight, 255);
+    //displayLines(strokeVizWeight, 255);
+    displayQuad();
     for (Line l : lines) {
       if (l.mouseOver()) {
         l.display(color(0, 0, 255));
