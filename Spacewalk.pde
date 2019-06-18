@@ -95,7 +95,7 @@ void setup() {
 //--------------------------------------------------------------
 void draw() {
   background(0);
-
+  lights();
   //drawName();
 
   if (mode == VISUALIZE) {
@@ -111,6 +111,10 @@ void draw() {
   if (!wasAutomated && !LOADING) {
     automateLinesGeneration();
     wasAutomated = true;
+  }
+
+  if (moveObject != null) {
+    moveObject.display();
   }
 }
 

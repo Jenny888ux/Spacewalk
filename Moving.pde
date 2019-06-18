@@ -2,20 +2,31 @@ class Moving {
 
   boolean moving = false;
   ArrayList<PVector> movingPoints;
+  ArrayList<Float> movingRatios;
   PVector startPoint;
   PVector endPoint;
-  
+
   Moving(Line l) {
     movingPoints = new ArrayList<PVector>();
-    movingPoints.add(l.p1);
-    movingPoints.add(l.p2);
-    setEndPoints();
+    addLine(l);
   }
-  
+
   void addLine(Line l) {
     movingPoints.add(l.p1);
     movingPoints.add(l.p2);
     setEndPoints();
+    setRatios();
+  }
+
+  void setRatios() {
+    movingRatios = new ArrayList<Float>();
+    PVector sp = new PVector(startPoint.x, startPoint.y);
+    PVector ep = new PVector(endPoint.x, endPoint.y);
+    float totLen = dist(sp.x, sp.y, ep.x, ep.y);
+    for (int i = 0; i < movingPoints.size(); i++) {
+      float ratioStart = dist(movingPoints.get(i).x, movingPoints.get(i).y, sp.x, sp.y)/totLen;
+      movingRatios.add(ratioStart);
+    }
   }
 
   void setEndPoints() {
@@ -49,15 +60,24 @@ class Moving {
     }
   }
 
-  void move(float x1, float y1, float x2, float y2) {
+
+
+  void move(float dx2, float dy2, float dx1, float dy1) {
     PVector sp = new PVector(startPoint.x, startPoint.y);
     PVector ep = new PVector(endPoint.x, endPoint.y);
-
     for (int i = 0; i < movingPoints.size(); i++) {
-      movingPoints.get(i).x = map(movingPoints.get(i).x, sp.x, ep.x, sp.x + x1, ep.x + x2);
-      movingPoints.get(i).y = map(movingPoints.get(i).y, sp.y, ep.y, sp.y + y1, ep.y + y2);
+      float ratioStart = movingRatios.get(i);
+      movingPoints.get(i).x = lerp(sp.x + dx1, ep.x + dx2, ratioStart);
+      movingPoints.get(i).y = lerp(sp.y + dy1, ep.y + dy2, ratioStart);
     }
   }
 
-
+  void display() {
+    colorMode(RGB, 255);
+    fill(0, 255, 0);
+    ellipse(startPoint.x, startPoint.y, 10, 10);
+    fill(255, 0, 0);
+    ellipse(endPoint.x, endPoint.y, 10, 10);
+    colorMode(HSB, 255);
+  }
 }
