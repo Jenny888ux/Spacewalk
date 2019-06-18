@@ -9,6 +9,9 @@ int currentX = 0, currentY = 0, currentZ = 0;
 Line currentLine;
 
 float lightX = 500, lightY = 500, lightZ = -100;
+
+Moving moveObject;
+boolean SHIFT_DOWN = false;
 ///////////////////////////////////////
 int strokeVizWeight = 3;
 
@@ -154,8 +157,8 @@ void visualizeSetting(PGraphics g) {
 
 void visualize(PGraphics g) {
   noCursor();
-  
-  
+
+
   screen.beginDraw();
   screen.background(0);
   screen.pointLight(205, 205, 205, lightX, lightY, lightZ); //-100);
@@ -170,9 +173,9 @@ void visualize(PGraphics g) {
   screen.stroke(255);
   screen.fill(255);
   screen.strokeWeight(strokeVizWeight);
-  
-  
-  
+
+
+
   screen.endDraw();
 
 
@@ -183,7 +186,6 @@ void visualize(PGraphics g) {
   circleCubes();
   //drawCubeBack(1, 0, color(255));
   //strokeWeight(strokeVizWeight);
-  
 }
 void changeMode() {
 
@@ -270,21 +272,24 @@ void keyPressed() {
     toggleCalibration();
   } else if (key == 'v') mode = VISUALIZE;
   else if (mode == MOVE_LINES) {
-    if (currentLine != null) {
-      if (keyCode == UP) currentLine.moveP1(0, -1);
-      else if (keyCode == DOWN) currentLine.moveP1(0, 1);
-      else if (keyCode == RIGHT) currentLine.moveP1(1, 0);
-      else if (keyCode == LEFT) currentLine.moveP1(-1, 0);
-      else if (key == 'i') currentLine.moveP2(0, -1);     
-      else if (key == 'k') currentLine.moveP2(0, 1);     
-      else if (key == 'l') currentLine.moveP2(1, 0);
-      else if (key == 'j') currentLine.moveP2(-1, 0);
+    if (keyCode == SHIFT) SHIFT_DOWN = true;
+    else if (moveObject != null) {
+      if (keyCode == UP) moveObject.move(0, -1, 0, 0);
+      else if (keyCode == DOWN) moveObject.move(0, 1, 0, 0);
+      else if (keyCode == RIGHT) moveObject.move(1, 0, 0, 0);
+      else if (keyCode == LEFT) moveObject.move(-1, 0, 0, 0);
+      else if (key == 'i') moveObject.move(0, 0, 0, -1);     
+      else if (key == 'k') moveObject.move(0, 0, 0, 1);     
+      else if (key == 'l') moveObject.move(0, 0, 1, 0);
+      else if (key == 'j') moveObject.move(0, 0, -1, 0);
     }
   }
 
 
   return;
 }
+
+
 
 // get a string
 // up, down, left, right -> p1
@@ -295,6 +300,9 @@ boolean hasCurrentStringPoint() {
 
 //--------------------------------------------------------------
 void keyReleased() {
+  if (keyCode == SHIFT) {
+    SHIFT_DOWN = false;
+  }
 }
 
 //--------------------------------------------------------------
@@ -372,7 +380,13 @@ void settingFunctions() {
       if (l.mouseOver()) {
         l.display(color(0, 0, 255));
         if (mousePressed) {
-          currentLine = l;
+          if (moveObject == null) {
+            moveObject = new Moving(l);
+          } else if (SHIFT_DOWN) {
+            moveObject.addLine(l);
+          } else {
+            moveObject = new Moving(l);
+          }
         }
       }
     }
